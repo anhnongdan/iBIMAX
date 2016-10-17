@@ -201,9 +201,10 @@ class Date
      *
      * @return string
      */
-    public function getDateStartUTC()
+    public function getDateStartUTC($format = 'Y-m-d')
     {
-        $dateStartUTC = gmdate('Y-m-d', $this->timestamp);
+        //$dateStartUTC = gmdate('Y-m-d', $this->timestamp);
+        $dateStartUTC = gmdate($format, $this->timestamp);
         $date = Date::factory($dateStartUTC)->setTimezone($this->timezone);
         return $date->toString(self::DATE_TIME_FORMAT);
     }
@@ -215,9 +216,10 @@ class Date
      *
      * @return string
      */
-    public function getDateEndUTC()
+    public function getDateEndUTC($format = 'Y-m-d 23:59:59')
     {
-        $dateEndUTC = gmdate('Y-m-d 23:59:59', $this->timestamp);
+        //$dateEndUTC = gmdate('Y-m-d 23:59:59', $this->timestamp);
+        $dateEndUTC = gmdate($format, $this->timestamp);
         $date = Date::factory($dateEndUTC)->setTimezone($this->timezone);
         return $date->toString(self::DATE_TIME_FORMAT);
     }

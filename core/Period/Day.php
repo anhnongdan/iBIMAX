@@ -49,6 +49,7 @@ class Day extends Period
 
         $subPeriod = array();
         while ($dateStart->isEarlier($dateEnd)) {
+		Log::Debug("Period/Day:getStealthySubPeriods date:%s hour:%s", $this->getDate()->getDatetime(), $dateStart->getDatetime());
             $hour = new Hour($dateStart);
             $subPeriod[] = $hour;
             $dateStart = $dateStart->addHour(1);
@@ -91,6 +92,7 @@ class Day extends Period
      */
     public function getNumberOfSubperiods()
     {
+//	Log::Debug("Period/Day:getNumberOfSubperiods");
         return 0;
     }
 
@@ -103,6 +105,7 @@ class Day extends Period
      */
     public function addSubperiod($date)
     {
+//	Log::Debug("Period/Day:addSubperiod");
         throw new Exception("Adding a subperiod is not supported for Day");
     }
 

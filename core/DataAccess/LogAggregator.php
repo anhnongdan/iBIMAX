@@ -15,6 +15,7 @@ use Piwik\Db;
 use Piwik\Metrics;
 use Piwik\Tracker\GoalManager;
 use Piwik\Date;
+use Piwik\Log;
 /**
  * Contains methods that calculate metrics by aggregating log data (visits, actions, conversions,
  * ecommerce items).
@@ -128,6 +129,7 @@ class LogAggregator
 
     /** @var \Piwik\Date */
     protected $dateEnd;
+    protected $period;
 
     /** @var int[] */
     protected $sites;
@@ -157,11 +159,12 @@ class LogAggregator
     {
         $this->dateStart = $params->getDateStart();
         $this->dateEnd = $params->getDateEnd();
-
+        $this->period = $params->getPeriod();
         if($params->getPeriod()->getLabel()==='hour'){
             $this->period_hour = true;
         }
 
+	Log::Debug("DataAccess/LogAggregator:construct:period:%s start:%s end:%s", $this->period->getLabel(), $this->dateStart->getDatetime(), $this->dateEnd->getDatetime());
 //        echo("[Thang 2016-09-12] Debug var dump @LogAggregator\n");
 //        var_dump($this->dateStart);
 //        var_dump($this->dateEnd);
@@ -180,11 +183,11 @@ class LogAggregator
     public function generateQuery($select, $from, $where, $groupBy, $orderBy)
     {
         //[Thang 2016-09-12]
-        if($this->period_hour) {
-            $bind = $this->getQueryBindParamsForHour();
-        } else {
-            $bind = $this->getGeneralQueryBindParams();
-        }
+//        if($this->period_hour) {
+//            $bind = $this->getQueryBindParamsForHour();
+//        } else {
+        $bind = $this->getGeneralQueryBindParams();
+//        }
 
         $query = $this->segment->getSelectQuery($select, $from, $where, $bind, $orderBy, $groupBy);
 
@@ -528,7 +531,16 @@ class LogAggregator
      */
     protected function getGeneralQueryBindParams()
     {
-        $bind = array($this->dateStart->getDateStartUTC(), $this->dateEnd->getDateEndUTC());
+        if($this->period->getLabel()==='hour'){
+		$start = $this->dateStart->getDateStartUTC(Date::DATE_TIME_FORMAT);
+		$end = $this->dateEnd->getDateEndUTC(Date::DATE_TIME_FORMAT);
+	} else {
+		$start = $this->dateStart->getDateStartUTC();
+		$end = $this->dateEnd->getDateEndUTC();
+	}
+        //$bind = array($this->dateStart->getDateStartUTC(), $this->dateEnd->getDateEndUTC());
+	Log::Debug("getGeneralQueryBindParams: start:%s end:%s", $start, $end);
+        $bind = array($start, $end);
         $bind = array_merge($bind, $this->sites);
 
         return $bind;
@@ -539,8 +551,11 @@ class LogAggregator
     protected function getQueryBindParamsForHour()
     {
         //TODO: Not really good to involve Date here
-        $start = $this->dateStart->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
-        $end = $this->dateEnd->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
+//        $start = $this->dateStart->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
+        $start = $this->dateStart->getDateStartUTC(Date::DATE_TIME_FORMAT);
+        $end = $this->dateEnd->getDateStartUTC(Date::DATE_TIME_FORMAT);
+ //       $end = $this->dateEnd->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
+	Log::Debug("getQueryBindParamsForHour: start:%s end:%s", $start, $end);
         $bind = array($start, $end);
         $bind = array_merge($bind, $this->sites);
 

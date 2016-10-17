@@ -729,11 +729,12 @@ class Archive
                     //$now = Date::now();
                     //getDateEnd and $now is both UTC already???
                     $endOfPeriod = $period->getDateEnd()->setTimezone($site->getTimezone());
+                    //$endOfPeriod = $period->getDateEnd()->setTimezone($site->getTimezone());
+                        Log::debug("At Archive Site: now:%s and getDateEnd: %s",
+				$now->getTimestamp(), $endOfPeriod->getTimestamp());
                     if ($endOfPeriod->isLater($now)) {
-                        Log::debug("At Archive Site: now and getDateEnd: %s - %s.",
-				$now->getTimestamp(), $period->getDateEnd()->getTimestamp());
-                        Log::debug("At Archive Site: now ICT and getDateEnd: %s - %s.",
-                                $now->addHour(7)->toString('Y-m-d H:i:s'), $period->getDateEnd()->toString('Y-m-d H:i:s'));
+//                        Log::debug("At Archive Site: now ICT and getDateEnd: %s - %s.",
+  //                              $now->addHour(7)->toString('Y-m-d H:i:s'), $period->getDateEnd()->toString('Y-m-d H:i:s'));
                         //getPrettyString doesn't has UTC for Hour.
                         Log::debug("Archive site %s, %s (%s) skipped, archive is for future hours.",
                             $idSite, $period->getLabel(), $period->getPrettyString());
@@ -932,7 +933,7 @@ class Archive
         $archiveLoader = new ArchiveProcessor\Loader($parameters);
 
         $periodString = $period->getRangeString();
-
+	Log::Debug("Archive:prepareArchive periodString:%s", $periodString);
         $idSites = array($site->getId());
         
         // process for each plugin as well

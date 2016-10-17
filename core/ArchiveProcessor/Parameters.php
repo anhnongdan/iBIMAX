@@ -53,6 +53,7 @@ class Parameters
         $this->site = $site;
         $this->period = $period;
         $this->segment = $segment;
+	Log::Debug("ArchiveProcessor/Parameters:construct period:%s start:%s end:%s", $this->period->getLabel(), $this->period->getDateStart()->getDatetime(),$this->period->getDateEnd()->getDatetime());
     }
 
     /**

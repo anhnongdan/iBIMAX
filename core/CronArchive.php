@@ -887,6 +887,7 @@ class CronArchive
      */
     private function archiveReportsFor($idSite, $period, $date, $archiveSegments, Timer $periodTimer, $visitsToday = 0, $visitsLastDays = 0)
     {
+	$this->logger->info("CronArchive:archiveReportsFor idsite:" . $idSite . " period:" . $period . " date:" . $date);
         $url = $this->getVisitsRequestUrl($idSite, $period, $date, $segment = false);
         $url = $this->makeRequestUrl($url);
 

@@ -63,7 +63,7 @@ abstract class Period
         //[Thangnt 2016-10-11]
         // The $date object which belongs to Period already has timezone inside.
         $this->date = clone $date;
-
+//	Log::Debug("Period:construct %s", $date->getDatetime());
         $this->translator = StaticContainer::get('Piwik\Translation\Translator');
     }
 

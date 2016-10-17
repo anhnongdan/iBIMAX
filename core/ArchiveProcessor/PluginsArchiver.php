@@ -52,6 +52,8 @@ class PluginsArchiver
     public function __construct(Parameters $params, $isTemporaryArchive)
     {
         $this->params = $params;
+	$period = $this->params->getPeriod();
+	Log::Debug("ArchiveProcessor/PluginsArchiver:construct period:%s start:%s", $period->getLabel(), $period->getDateStart()->getDatetime());
         $this->isTemporaryArchive = $isTemporaryArchive;
         $this->archiveWriter = new ArchiveWriter($this->params, $this->isTemporaryArchive);
         $this->archiveWriter->initNewArchive();

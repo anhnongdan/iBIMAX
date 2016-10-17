@@ -15,6 +15,7 @@ use Piwik\DataAccess\ArchiveSelector;
 use Piwik\Date;
 use Piwik\Period;
 use Piwik\Piwik;
+use Piwik\Log;
 
 /**
  * This class uses PluginsArchiver class to trigger data aggregation and create archives.
@@ -42,6 +43,8 @@ class Loader
 
     public function __construct(Parameters $params)
     {
+	$period = $params->getPeriod();
+	Log::Debug("ArchiveProcessor/Loader:construct period:%s start:%s", $period->getLabel(), $period->getDateStart()->getDatetime());
         $this->params = $params;
     }
 
@@ -187,6 +190,7 @@ class Loader
      */
     protected function getMinTimeArchiveProcessed()
     {
+	Log::Debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed");
         //[Thangnt 2016-09-21] For Hour return the end time of that hour.
         $period = $this->params->getPeriod();
         if ($period->getId()===6){
@@ -218,15 +222,22 @@ class Loader
 
     protected static function determineIfArchivePermanent(Date $dateEnd)
     {
+	Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent: dateEnd:%s", $dateEnd->getDatetime());
         $now = time();
         $endTimestampUTC = strtotime($dateEnd->getDateEndUTC());
-
+	
+//	$ext = 25200;
+//	$endTimestampUTC = $endTimestampUTC + 25200;
         if ($endTimestampUTC <= $now) {
             // - if the period we are looking for is finished, we look for a ts_archived that
             //   is greater than the last day of the archive
-            return $endTimestampUTC;
+	    Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent: now:%s endTimestampUTC:%s", $now, $endTimestampUTC);
+		//vutt
+            return false;
+            //return $endTimestampUTC;
         }
 
+	Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent:false");
         return false;
     }
 
