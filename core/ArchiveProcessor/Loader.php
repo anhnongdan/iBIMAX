@@ -193,6 +193,7 @@ class Loader
 	Log::Debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed");
         //[Thangnt 2016-09-21] For Hour return the end time of that hour.
         $period = $this->params->getPeriod();
+/*
         if ($period->getId()===6){
             //hourly archive is never a temporary archive for itself
             // remember the 'temp' word used for that means the data
@@ -201,7 +202,7 @@ class Loader
             $this->temporaryArchive = false;
             return $this->params->getDateEnd()->getTimestampUTC();
         }
-
+*/
         $endDateTimestamp = self::determineIfArchivePermanent($this->params->getDateEnd());
         $isArchiveTemporary = ($endDateTimestamp === false);
         $this->temporaryArchive = $isArchiveTemporary;
@@ -222,22 +223,24 @@ class Loader
 
     protected static function determineIfArchivePermanent(Date $dateEnd)
     {
-	Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent: dateEnd:%s", $dateEnd->getDatetime());
+	//Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent: dateEnd:%s", $dateEnd->getDatetime());
         $now = time();
         $endTimestampUTC = strtotime($dateEnd->getDateEndUTC());
-	
+
+	//vutt
+	Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent: now:%s endTimestampUTC:%s", $now, $endTimestampUTC);
 //	$ext = 25200;
 //	$endTimestampUTC = $endTimestampUTC + 25200;
         if ($endTimestampUTC <= $now) {
             // - if the period we are looking for is finished, we look for a ts_archived that
             //   is greater than the last day of the archive
-	    Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent: now:%s endTimestampUTC:%s", $now, $endTimestampUTC);
+	    Log::Debug("no need archive");
 		//vutt
-            return false;
-            //return $endTimestampUTC;
-        }
-
-	Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent:false");
+            //return false;
+            return $endTimestampUTC;
+    	} 
+	//Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent:false");
+	Log::Debug("must archive");
         return false;
     }
 

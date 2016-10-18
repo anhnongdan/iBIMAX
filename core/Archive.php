@@ -694,7 +694,7 @@ class Archive
 
         $today = Date::today();
         
-        $now = Date::now();
+//        $now = Date::now();
         
         foreach ($this->params->getPeriods() as $period) {
             $twoDaysBeforePeriod = $period->getDateStart()->subDay(2);
@@ -725,6 +725,8 @@ class Archive
                  * The current hour is excluded as well.
                  *
                  */
+
+/*
                 if ($period->getLabel() === 'hour') {
                     //$now = Date::now();
                     //getDateEnd and $now is both UTC already???
@@ -742,6 +744,7 @@ class Archive
                     }
                 }
 
+*/
 //                if ($period->getLabel()==='day') {
 //                echo " From cacheArchiveIdsAfterLaunching in CoreArchive - period for each site - : \n";
 //                echo "For site: $site \n";
