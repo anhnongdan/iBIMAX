@@ -195,10 +195,6 @@ class Loader
         $period = $this->params->getPeriod();
 /*
         if ($period->getId()===6){
-            //hourly archive is never a temporary archive for itself
-            // remember the 'temp' word used for that means the data
-            // is not used directly for visualization but for calculation of
-            // other period data only.
             $this->temporaryArchive = false;
             return $this->params->getDateEnd()->getTimestampUTC();
         }
@@ -213,9 +209,28 @@ class Loader
         }
 
         $dateStart = $this->params->getDateStart();
+       //$dateEnd = $this->params->getDateEnd();
 //        $period    = $this->params->getPeriod();
         $segment   = $this->params->getSegment();
         $site      = $this->params->getSite();
+
+
+  		if ($period->getLabel() === 'hour') {
+		    $now = Date::now();
+                    $endOfPeriod = $period->getDateEnd()->setTimezone($site->getTimezone());
+                    $now_ts = $now->getTimestamp();
+                    $dateEnd_ts = $endOfPeriod->getTimestamp();
+                    $timeback = $now_ts - $dateEnd_ts;
+                     Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed: now:%s and getDateEnd: %s timeBack:%s",
+                                $now->getDatetime(), $endOfPeriod->getDatetime(), $timeback);
+                    if ($now_ts < $dateEnd_ts || $timeback > 7200) {
+                        Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed %s (%s) skipped, archive is for future hours.",
+                            $period->getLabel(), $period->getPrettyString());
+			return $endDateTimestamp;
+                    }
+                }
+
+
 
         // Temporary archive
         return Rules::getMinTimeProcessedForTemporaryArchive($dateStart, $period, $segment, $site);
@@ -223,24 +238,12 @@ class Loader
 
     protected static function determineIfArchivePermanent(Date $dateEnd)
     {
-	//Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent: dateEnd:%s", $dateEnd->getDatetime());
         $now = time();
         $endTimestampUTC = strtotime($dateEnd->getDateEndUTC());
 
-	//vutt
-	Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent: now:%s endTimestampUTC:%s", $now, $endTimestampUTC);
-//	$ext = 25200;
-//	$endTimestampUTC = $endTimestampUTC + 25200;
         if ($endTimestampUTC <= $now) {
-            // - if the period we are looking for is finished, we look for a ts_archived that
-            //   is greater than the last day of the archive
-	    Log::Debug("no need archive");
-		//vutt
-            //return false;
             return $endTimestampUTC;
     	} 
-	//Log::Debug("ArchiveProcessor/Loader:determineIfArchivePermanent:false");
-	Log::Debug("must archive");
         return false;
     }
 
