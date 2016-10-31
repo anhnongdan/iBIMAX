@@ -20,7 +20,7 @@ class Factory
      *
      * _Note: This method cannot create {@link Period\Range} periods._
      *
-     * @param string $period `"day"`, `"week"`, `"month"`, `"year"`, `"range"`.
+     * @param string $period `"day"`, `"week"`, `"month"`, `"year"`, `"range"`. and `"hour"`
      * @param Date|string $date A date within the period or the range of dates.
      * @param Date|string $timezone Optional timezone that will be used only when $period is 'range' or $date is 'last|previous'
      * @throws Exception If `$strPeriod` is invalid.
@@ -28,8 +28,14 @@ class Factory
      */
     public static function build($period, $date, $timezone = 'UTC')
     {
+        // This is why the enabled_periods_UI and API need to be set for hour in config.ini 
         self::checkPeriodIsEnabled($period);
 
+        //[Thangnt 2016-10-27] Check period build from ArchiveInvalidator
+//        echo "From Period Factory: ";
+//        $multi = Period::isMultiplePeriod($date, $period);
+//        echo " The input date range string is $date and is multi period?: $multi \n***\n";
+        
         if (is_string($date)) {
             if (Period::isMultiplePeriod($date, $period)
                 || $period == 'range') {

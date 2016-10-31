@@ -16,6 +16,9 @@ use Piwik\Db;
 use Piwik\DbHelper;
 
 /**
+ * [Thangnt 2016-10-27] Change temporary table names to 'temp_archive_(blob|numeric)'
+ * to make table name processing easier.
+ * 
  * MySQL schema
  */
 class Mysql implements SchemaInterface
@@ -234,7 +237,7 @@ class Mysql implements SchemaInterface
                                       ) ENGINE=$engine DEFAULT CHARSET=utf8
             ",
 
-            'archive_temp_numeric'     => "CREATE TABLE {$prefixTables}archive_temp_numeric (
+            'archive_numeric_temp'=> "CREATE TABLE {$prefixTables}archive_numeric_temp (
                                       idarchive INTEGER UNSIGNED NOT NULL,
                                       name VARCHAR(255) NOT NULL,
                                       idsite INTEGER UNSIGNED NULL,
@@ -263,7 +266,7 @@ class Mysql implements SchemaInterface
                                       ) ENGINE=$engine DEFAULT CHARSET=utf8
             ",
 
-            'archive_temp_blob'        => "CREATE TABLE {$prefixTables}archive_temp_blob (
+            'archive_blob_temp'        => "CREATE TABLE {$prefixTables}archive_blob_temp (
                                       idarchive INTEGER UNSIGNED NOT NULL,
                                       name VARCHAR(255) NOT NULL,
                                       idsite INTEGER UNSIGNED NULL,
@@ -440,6 +443,9 @@ class Mysql implements SchemaInterface
     }
 
     /**
+     * [Thangnt 2016-10-27] Prevent archive_blob_temp and archive_numeric_temp
+     * to be created at the beginning
+     * 
      * Create all tables
      */
     public function createTables()
@@ -451,7 +457,9 @@ class Mysql implements SchemaInterface
         $tablesToCreate = $this->getTablesCreateSql();
         unset($tablesToCreate['archive_blob']);
         unset($tablesToCreate['archive_numeric']);
-
+        unset($tablesToCreate['archive_blob_temp']);
+        unset($tablesToCreate['archive_numeric_temp']);
+        
         foreach ($tablesToCreate as $tableName => $tableSql) {
             $tableName = $prefixTables . $tableName;
             if (!in_array($tableName, $tablesAlreadyInstalled)) {

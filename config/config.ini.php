@@ -2,29 +2,48 @@
 ; file automatically generated or modified by Piwik; you can manually override the default values in global.ini.php by redefining them in this file.
 [database]
 host = "127.0.0.1"
-username = "admin"
-password = "f3d3e61f1c4ddbce127a52c5e18f621194edcd98"
-dbname = "pw1"
+username = "tony"
+password = "tatthang"
+dbname = "piwik"
 tables_prefix = "piwik_"
-port = 3001
+
+[database_tests]
+host = localhost
+username = "tony"
+password = "tatthang"
+dbname = piwik_tests
+tables_prefix = piwik_
+port = 3306
+adapter = PDO\MYSQL
+type = InnoDB
+schema = Mysql
+charset = utf8
 
 [log]
-log_writers[] = "file"
-log_level = "DEBUG"
-logger_file_path = "/var/log/piwik.log"
-
-[RedisCache]
-port = 6001
+log_writers[] = file
+log_level = INFO
+logger_file_path = "/home/tony/bimax_docker/pw1/www/piwik.log"
 
 [Debug]
 disable_merged_assets = 1
 
 [General]
+enable_processing_unique_visitors_day = 1
+enable_processing_unique_visitors_week = 1
+enable_processing_unique_visitors_month = 1
 enable_trusted_host_check = 0
-salt = "7ec3223d93b4967360749f2d0da36906"
+salt = "8f3138c8624ebab029c0d4bab952821f"
+trusted_hosts[] = "localhost"
+trusted_hosts[] = "example.org"
+enabled_periods_UI = "hour,day,week,month,year,range"
+enabled_periods_API = "hour,day,week,month,year,range"
 
 [Tracker]
 bulk_requests_use_transaction = 0
+
+[mail]
+username = "admin"
+password = "tatthang"
 
 [Plugins]
 Plugins[] = "CorePluginsAdmin"
@@ -35,6 +54,7 @@ Plugins[] = "Diagnostics"
 Plugins[] = "CoreVisualizations"
 Plugins[] = "Proxy"
 Plugins[] = "API"
+Plugins[] = "ExamplePlugin"
 Plugins[] = "Widgetize"
 Plugins[] = "Transitions"
 Plugins[] = "LanguagesManager"
@@ -44,7 +64,10 @@ Plugins[] = "MultiSites"
 Plugins[] = "Referrers"
 Plugins[] = "UserLanguage"
 Plugins[] = "DevicesDetection"
+Plugins[] = "Goals"
+Plugins[] = "Ecommerce"
 Plugins[] = "SEO"
+Plugins[] = "Events"
 Plugins[] = "UserCountry"
 Plugins[] = "VisitsSummary"
 Plugins[] = "VisitFrequency"
@@ -63,6 +86,7 @@ Plugins[] = "CoreConsole"
 Plugins[] = "ScheduledReports"
 Plugins[] = "UserCountryMap"
 Plugins[] = "Live"
+Plugins[] = "CustomVariables"
 Plugins[] = "PrivacyManager"
 Plugins[] = "ImageGraph"
 Plugins[] = "Annotations"
@@ -71,13 +95,19 @@ Plugins[] = "Overlay"
 Plugins[] = "SegmentEditor"
 Plugins[] = "Insights"
 Plugins[] = "Morpheus"
+Plugins[] = "Contents"
 Plugins[] = "BulkTracking"
+Plugins[] = "Resolution"
 Plugins[] = "DevicePlugins"
 Plugins[] = "Heartbeat"
 Plugins[] = "Intl"
 Plugins[] = "ProfessionalServices"
+Plugins[] = "UserId"
+Plugins[] = "CustomPiwikJs"
 Plugins[] = "DBStats"
-Plugins[] = "QueuedTracking"
+Plugins[] = "Provider"
+Plugins[] = "Bandwidth"
+Plugins[] = "LogViewer"
 
 [PluginsInstalled]
 PluginsInstalled[] = "Diagnostics"
@@ -137,13 +167,9 @@ PluginsInstalled[] = "DevicePlugins"
 PluginsInstalled[] = "Heartbeat"
 PluginsInstalled[] = "ProfessionalServices"
 PluginsInstalled[] = "UserId"
-PluginsInstalled[] = "QueuedTracking"
+PluginsInstalled[] = "CustomPiwikJs"
+PluginsInstalled[] = "Bandwidth"
 PluginsInstalled[] = "DBStats"
-
-[QueuedTracking]
-queueEnabled = 1
-redisPort = 6001
-processDuringTrackingRequest = "1"
-numQueueWorkers = 32
-numRequestsToProcess = 1
+PluginsInstalled[] = "Provider"
+PluginsInstalled[] = "LogViewer"
 

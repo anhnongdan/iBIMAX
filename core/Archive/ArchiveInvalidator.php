@@ -21,6 +21,9 @@ use Piwik\Period;
 use Piwik\Segment;
 
 /**
+ * [Thangnt 2016-10-27] Modify this class to support invalidating hour period
+ * 
+ * 
  * Service that can be used to invalidate archives or add archive references to a list so they will
  * be invalidated later.
  *
@@ -135,6 +138,9 @@ class ArchiveInvalidator
     {
         $invalidationInfo = new InvalidationResult();
 
+        // @Thangnt: remove the dates that log data has been purged,
+        // this *seldom* (never??) occurs in our system. Instead need to find out
+        // how to retrieve the rotated log to re-calculate the archive
         $datesToInvalidate = $this->removeDatesThatHaveBeenPurged($dates, $invalidationInfo);
 
         if (empty($period)) {
@@ -142,10 +148,13 @@ class ArchiveInvalidator
             $periodDates = $this->getDatesByYearMonthAndPeriodType($dates);
         } else {
             $periods = $this->getPeriodsToInvalidate($datesToInvalidate, $period, $cascadeDown);
+            
+            // get Year Month for archive table name
             $periodDates = $this->getPeriodDatesByYearMonthAndPeriodType($periods);
         }
 
         $periodDates = $this->getUniqueDates($periodDates);
+        // @Thangnt: the real function that invalides archive
         $this->markArchivesInvalidated($idSites, $periodDates, $segment);
 
         $yearMonths = array_keys($periodDates);
@@ -190,13 +199,21 @@ class ArchiveInvalidator
                 $date = $date . ',' . $date;
             }
 
+//            echo "From getPeriodsToInvalidate in ArchiveInvalidator:\n";
+//            echo "The date: $date and period type is: $periodType \n ****\n";
+            
             $period = Period\Factory::build($periodType, $date);
             $periodsToInvalidate[] = $period;
 
+            // [Thangnt 2016-10-27] 
+//            $e = new \Exception;
+//            var_dump($e->getTraceAsString());
+            
             if ($cascadeDown) {
                 $periodsToInvalidate = array_merge($periodsToInvalidate, $period->getAllOverlappingChildPeriods());
             }
 
+            // [Thangnt 2016-10-27] In case of month and week, build year
             if ($periodType != 'year'
                 && $periodType != 'range'
             ) {
@@ -253,6 +270,11 @@ class ArchiveInvalidator
     private function markArchivesInvalidated($idSites, $dates, Segment $segment = null)
     {
         $archiveNumericTables = ArchiveTableCreator::getTablesArchivesInstalled($type = ArchiveTableCreator::NUMERIC_TABLE);
+        
+        echo "** From markArchivesInvalidated in ArchiveInvalidator : \n";
+        print_r($archiveNumericTables);
+        echo "***88***\n";
+        
         foreach ($archiveNumericTables as $table) {
             $tableDate = ArchiveTableCreator::getDateFromTableName($table);
             if (empty($dates[$tableDate])) {

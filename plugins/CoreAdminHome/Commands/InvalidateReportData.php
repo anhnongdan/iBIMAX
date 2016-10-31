@@ -23,6 +23,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
+ * [Thangnt 2016-10-27] This class defines the console command for 
+ * 
  * Provides a simple interface for invalidating report data by date ranges, site IDs and periods.
  */
 class InvalidateReportData extends ConsoleCommand
@@ -66,8 +68,15 @@ class InvalidateReportData extends ConsoleCommand
         $dryRun = $input->getOption('dry-run');
 
         $sites = $this->getSitesToInvalidateFor($input);
+        
+        // Thangnt: the input periods can not be range 
+        // although if a (continuous) range of other periods 
+        // is input it will be translate as range
         $periodTypes = $this->getPeriodTypesToInvalidateFor($input);
+        
+        // The --dates string
         $dateRanges = $this->getDateRangesToInvalidateFor($input);
+        
         $segments = $this->getSegmentsToInvalidateFor($input, $sites);
 
         foreach ($periodTypes as $periodType) {
@@ -77,8 +86,14 @@ class InvalidateReportData extends ConsoleCommand
 
                     $output->writeln("Invalidating $periodType periods in $dateRange [segment = $segmentStr]...");
 
+                    // @Thangnt: date range will be translated to an array of Startdate
+                    // These $dates have timezone of UTC so it complies with datetime in Database
                     $dates = $this->getPeriodDates($periodType, $dateRange);
 
+//                    echo "When InvaldateReportData executes: \n";
+//                    var_dump($dates);
+//                    echo "****\n";
+                    
                     if ($dryRun) {
                         $output->writeln("[Dry-run] invalidating archives for site = [ " . implode(', ', $sites)
                             . " ], dates = [ " . implode(', ', $dates) . " ], period = [ $periodType ], segment = [ "

@@ -16,6 +16,9 @@ use Piwik\Date;
 use Piwik\Period;
 
 /**
+ * [Thangnt 2016-10-27] Range string should accepts the Hour as a
+ * subperiod.
+ * 
  * Arbitrary date range representation.
  *
  * This class represents a period that contains a list of consecutive days as subperiods
@@ -44,7 +47,7 @@ class Range extends Period
      * Constructor.
      *
      * @param string $strPeriod The type of period each subperiod is. Either `'day'`, `'week'`,
-     *                          `'month'` or `'year'`.
+     *                          `'month'` or `'year'`. [or hour]
      * @param string $strDate The date range, eg, `'2007-07-24,2013-11-15'`.
      * @param string $timezone The timezone to use, eg, `'UTC'`.
      * @param bool|Date $today The date to use as _today_. Defaults to `Date::factory('today', $timzeone)`.
@@ -298,7 +301,10 @@ class Range extends Period
     /**
      * [Thangnt 2016-09-20]
      * The Hour range needs to be parsed separately
-     *
+     * 2016-10-27: This function doesn't take in string with spaces after comma ','
+     *              and 1 digit hour without 0 (01 vs 1)
+     * => fixed accept 1 digit
+     * 
      * @param string $dateString what ever satisfy the
      * @return mixed  array(1 => dateStartString, 2 => dateEndString) or `false` if the input was not a date range.
      */
@@ -315,7 +321,8 @@ class Range extends Period
             $regs[1] = $regs[1]." 00:00:00";
             $regs[2] = $regs[2]." 23:00:00";
             return $regs;
-        } elseif (preg_match('/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/D', trim($dateString), $regs)) {
+        } elseif (preg_match('/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/D', trim($dateString), $regs) 
+                   || preg_match('/^(\d{4}-\d{2}-\d{2} \d{1}:\d{2}:\d{2}),(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/D', trim($dateString), $regs)) {
             return $regs;
         } else {
             return false;

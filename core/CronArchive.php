@@ -29,6 +29,11 @@ use Piwik\Plugins\UsersManager\UserPreferences;
 use Psr\Log\LoggerInterface;
 
 /**
+ * [Thangnt 2016-10-28]
+ * 9:57 This still doesn't support hour archive, --force-periods=hour will trigger
+ * day archive.
+ * 
+ * 
  * ./console core:archive runs as a cron and is a useful tool for general maintenance,
  * and pre-process reports for a Fast dashboard rendering.
  */
@@ -1174,7 +1179,12 @@ class CronArchive
 
         $secondsSinceMidnight = $nowInTimezone->getTimestamp() - $midnightInTimezone->getTimestamp();
 
+        // [Thangnt 2016-10-27] It seems that even if the archive tables are deleted,
+        // the last archive is preserved
+        // This function calls to Option::get to get a persisted value of the last 
+        // finished archive time.
         $secondsSinceLastArchive = $this->getSecondsSinceLastArchive();
+        
         if ($secondsSinceLastArchive < $secondsSinceMidnight) {
             $secondsBackToLookForVisits = $secondsSinceLastArchive;
             $sinceInfo = "(since the last successful archiving)";
@@ -1428,11 +1438,15 @@ class CronArchive
     }
 
     /**
+     * [Thangnt 2016-10-28]
+     * Add hour to the default periods to process, without this 
+     * --force-periods=hour will trigger day archive
+     * 
      * @return array
      */
     private function getDefaultPeriodsToProcess()
     {
-        return array('day', 'week', 'month', 'year', 'range');
+        return array('hour', 'day', 'week', 'month', 'year', 'range');
     }
 
     /**

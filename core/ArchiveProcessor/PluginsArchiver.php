@@ -28,7 +28,7 @@ use Exception;
 class PluginsArchiver
 {
     /**
-     * @param ArchiveProcessor $archiveProcessor
+     * @param ArchiveProcessor
      */
     public $archiveProcessor;
 

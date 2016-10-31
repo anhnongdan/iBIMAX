@@ -88,8 +88,8 @@ class Date
 
     /**
      * [Thangnt 2016-09-16]
-     * I feel that Date REALLY shouldn't bother
-     * about the Hour.
+     * I feel that Date REALLY shouldn't be bothered
+     * by the Hour.
      */
     private $isValidForHour = false;
 
@@ -125,6 +125,12 @@ class Date
     {
         $orgDateString = $dateString;
 
+        // Thangnt 2016-10-26 @DEBUG
+        //$e = new \Exception;
+        //var_dump($e->getTraceAsString());
+//        echo "From Date's factory \n";
+//        echo "\n ** Let see when this function throw errors: $dateString \n";
+        
         if ($dateString instanceof self) {
             $dateString = $dateString->toString();
         }
@@ -150,10 +156,14 @@ class Date
             $date = new Date($dateString);
             /**
              * [Thangnt 2016-09-16]
+             * 2016-10-27 Modified this for compatibility with `'hour`' != 60 mins
              */
             $extractedTime = array();
             $extractedTime = self::extractMSFromString($orgDateString);
-            if(sizeof($extractedTime) > 2 && $extractedTime[1]=='00' && $extractedTime[2]=='00') {
+            //if(sizeof($extractedTime) > 2 && $extractedTime[1]=='00' && $extractedTime[2]=='00') {
+            if(sizeof($extractedTime) > 2 && 
+                    ( (int)$extractedTime[1] >= 0 && (int)$extractedTime[1] < 60 )  && 
+                    ( (int)$extractedTime[2] >= 0 && (int)$extractedTime[2] < 60) ) {
                 $date->isValidForHour = true;
             }
         }
@@ -394,14 +404,31 @@ class Date
      * Converts this date to the requested string format. See {@link http://php.net/date}
      * for the list of format strings.
      *
+     * [Thangnt 2016-10-27] Need to consider this change really carefully.
+     * Beside of implementing a special case for Hour, the $format argument
+     * when input from the caller must be accepted.
+     * 
+     * [2016-10-28] @TODO if this works OK change the toString() of Period as well.
+     * 
      * @param string $format
      * @return string
      */
-    public function toString($format = 'Y-m-d')
+//    public function toString($format = 'Y-m-d')
+//    {
+//        return date($format, $this->getTimestamp());
+//    }
+    public function toString($format = null)
     {
+        if ($this->isValidForHour && $format === null) {
+            return date('Y-m-d H:i:s', $this->getTimestamp());
+        } 
+        
+        if ($format === null) {
+            $format = 'Y-m-d';
+        }
         return date($format, $this->getTimestamp());
     }
-
+    
     /**
      * See {@link toString()}.
      *
