@@ -52,7 +52,8 @@ class Hour extends Period
      */
     public function getDateStart() {
         $date = parent::getDateStart();
-        $hourStart = gmdate("Y-m-d H:00:00", $date->getTimestamp());
+        //$hourStart = gmdate("Y-m-d H:00:00", $date->getTimestamp());
+        $hourStart = gmdate("Y-m-d H:i:00", $date->getTimestamp());
         $hourStart = Date::factory($hourStart);
         return $hourStart;
     }
@@ -70,7 +71,8 @@ class Hour extends Period
     public function getDateEnd() {
         //parent::getDateEnd();
         $start = $this->getDateStart();
-        return $start->subHour(-1)->subSeconds(1);
+        return $start->subSeconds(-599);//->subSeconds(1);
+        //return $start->subHour(-1)->subSeconds(1);
     }
     
     /**

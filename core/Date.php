@@ -12,6 +12,7 @@ namespace Piwik;
 use Exception;
 use Piwik\Container\StaticContainer;
 use Piwik\Intl\Data\Provider\DateTimeFormatProvider;
+use Piwik\Log;
 
 /**
  * Utility class that wraps date/time related PHP functions. Using this class can
@@ -153,7 +154,9 @@ class Date
              */
             $extractedTime = array();
             $extractedTime = self::extractMSFromString($orgDateString);
-            if(sizeof($extractedTime) > 2 && $extractedTime[1]=='00' && $extractedTime[2]=='00') {
+            //if(sizeof($extractedTime) > 2 && $extractedTime[1]=='00' && $extractedTime[2]=='00') {
+            if(sizeof($extractedTime) > 2 && intval($extractedTime[1]) % 10 == 0 && $extractedTime[2]=='00') {
+//		Log::Debug("Date is hour valid");
                 $date->isValidForHour = true;
             }
         }

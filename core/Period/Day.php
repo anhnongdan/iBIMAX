@@ -12,6 +12,7 @@ use Exception;
 use Piwik\Date;
 use Piwik\Period;
 use Piwik\Log;
+use Piwik\Config;
 
 /**
  */
@@ -44,6 +45,13 @@ class Day extends Period
      */
     public function getStealthySubPeriods()
     {
+
+       $config = Config::getInstance()->General;
+       $my_period = 3600;
+       if (isset($config['my_period'])) {
+           $my_period = $config['my_period'];
+       }   
+	$my_period = - $my_period;
         $dateStart = Date::factory($this->getPrettyString().' 00:00:00');
         $dateEnd = $dateStart->addHour(24);
 
@@ -52,7 +60,9 @@ class Day extends Period
 		Log::Debug("Period/Day:getStealthySubPeriods date:%s hour:%s", $this->getDate()->getDatetime(), $dateStart->getDatetime());
             $hour = new Hour($dateStart);
             $subPeriod[] = $hour;
-            $dateStart = $dateStart->addHour(1);
+            $dateStart = $dateStart->subSeconds($my_period);
+            //$dateStart = $dateStart->subSeconds(-600);
+            //$dateStart = $dateStart->addHour(1);
         }
 
         return $subPeriod;

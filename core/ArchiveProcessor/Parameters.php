@@ -53,7 +53,7 @@ class Parameters
         $this->site = $site;
         $this->period = $period;
         $this->segment = $segment;
-	Log::Debug("ArchiveProcessor/Parameters:construct period:%s start:%s end:%s", $this->period->getLabel(), $this->period->getDateStart()->getDatetime(),$this->period->getDateEnd()->getDatetime());
+	//Log::Debug("ArchiveProcessor/Parameters:construct period:%s start:%s end:%s", $this->period->getLabel(), $this->period->getDateStart()->getDatetime(),$this->period->getDateEnd()->getDatetime());
     }
 
     /**
@@ -187,6 +187,7 @@ class Parameters
         }
 
         if ($this->getPeriod()->getLabel() === 'hour') {
+	/*
             Log::debug(
                 "%s archive, idSite = %d (%s), segment '%s', report = '%s', UTC datetime [%s -> %s]",
                 $this->getPeriod()->getLabel(),
@@ -197,9 +198,10 @@ class Parameters
                 $this->getDateStart()->toString(Date::DATE_TIME_FORMAT),
                 $this->getDateEnd()->toString(Date::DATE_TIME_FORMAT)
             );
+	*/
             return;
         }
-
+/*
         Log::debug(
             "%s archive, idSite = %d (%s), segment '%s', report = '%s', UTC datetime [%s -> %s]",
             $this->getPeriod()->getLabel(),
@@ -210,5 +212,6 @@ class Parameters
             $this->getDateStart()->getDateStartUTC(),
             $this->getDateEnd()->getDateEndUTC()
         );
+*/
     }
 }

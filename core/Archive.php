@@ -933,7 +933,7 @@ class Archive
         $archiveLoader = new ArchiveProcessor\Loader($parameters);
 
         $periodString = $period->getRangeString();
-	Log::Debug("Archive:prepareArchive periodString:%s", $periodString);
+	//Log::Debug("Archive:prepareArchive periodString:%s", $periodString);
         $idSites = array($site->getId());
         
         // process for each plugin as well

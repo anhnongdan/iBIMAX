@@ -44,7 +44,7 @@ class Loader
     public function __construct(Parameters $params)
     {
 	$period = $params->getPeriod();
-	Log::Debug("ArchiveProcessor/Loader:construct period:%s start:%s", $period->getLabel(), $period->getDateStart()->getDatetime());
+//	Log::Debug("ArchiveProcessor/Loader:construct period:%s start:%s", $period->getLabel(), $period->getDateStart()->getDatetime());
         $this->params = $params;
     }
 
@@ -190,7 +190,7 @@ class Loader
      */
     protected function getMinTimeArchiveProcessed()
     {
-	Log::Debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed");
+	//Log::Debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed");
         //[Thangnt 2016-09-21] For Hour return the end time of that hour.
         $period = $this->params->getPeriod();
 /*
@@ -221,11 +221,28 @@ class Loader
                     $now_ts = $now->getTimestamp();
                     $dateEnd_ts = $endOfPeriod->getTimestamp();
                     $timeback = $now_ts - $dateEnd_ts;
-                     Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed: now:%s and getDateEnd: %s timeBack:%s",
-                                $now->getDatetime(), $endOfPeriod->getDatetime(), $timeback);
-                    if ($now_ts < $dateEnd_ts || $timeback > 7200) {
-                        Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed %s (%s) skipped, archive is for future hours.",
-                            $period->getLabel(), $period->getPrettyString());
+//                     Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed: now:%s and getDateEnd: %s timeBack:%s",
+//                                $now->getDatetime(), $endOfPeriod->getDatetime(), $timeback);
+		$config = Config::getInstance()->General;
+	    	$time_limit = 3600;
+/*	
+	        if (isset($config['time_limit'])) {
+        	    $time_limit= $config['time_limit'];
+        	} 
+*/
+	        if (isset($config['my_period'])) {
+        	    $my_period = $config['my_period'];
+        	} 
+	        if (isset($config['my_nperiod_back'])) {
+        	    $my_nperiod_back = $config['my_nperiod_back'];
+        	} 
+	 	if (isset($time_limit)) {
+                    $time_limit = $my_period * $my_nperiod_back;
+                }	
+		    //Log::Debug("time_limit:%s", $time_limit);
+                    if ($now_ts < $dateEnd_ts || $timeback > $time_limit) {
+//                        Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed %s (%s) skipped, archive is for future hours.",
+//                            $period->getLabel(), $period->getPrettyString());
 			return $endDateTimestamp;
                     }
                 }

@@ -53,7 +53,7 @@ class PluginsArchiver
     {
         $this->params = $params;
 	$period = $this->params->getPeriod();
-	Log::Debug("ArchiveProcessor/PluginsArchiver:construct period:%s start:%s", $period->getLabel(), $period->getDateStart()->getDatetime());
+	//Log::Debug("ArchiveProcessor/PluginsArchiver:construct period:%s start:%s", $period->getLabel(), $period->getDateStart()->getDatetime());
         $this->isTemporaryArchive = $isTemporaryArchive;
         $this->archiveWriter = new ArchiveWriter($this->params, $this->isTemporaryArchive);
         $this->archiveWriter->initNewArchive();
@@ -98,8 +98,8 @@ class PluginsArchiver
      */
     public function callAggregateAllPlugins($visits, $visitsConverted)
     {
-        Log::debug("PluginsArchiver::%s: Initializing archiving process for all plugins [visits = %s, visits converted = %s]",
-            __FUNCTION__, $visits, $visitsConverted);
+        //Log::debug("PluginsArchiver::%s: Initializing archiving process for all plugins [visits = %s, visits converted = %s]",
+          //  __FUNCTION__, $visits, $visitsConverted);
 
         $this->archiveProcessor->setNumberOfVisits($visits, $visitsConverted);
 

@@ -39,7 +39,6 @@ class ArchiveTableCreator
          *
          * !!!Make sure that the delimiters are all underscore "_"
          */
-
         if($date->isValidForHour()) {
             $tableNamePrefix = "archive_temp_".$type;
             $tableName = $tableNamePrefix . "_" .self::getTableTempDateFromHour($date);

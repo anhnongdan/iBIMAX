@@ -164,7 +164,7 @@ class LogAggregator
             $this->period_hour = true;
         }
 
-	Log::Debug("DataAccess/LogAggregator:construct:period:%s start:%s end:%s", $this->period->getLabel(), $this->dateStart->getDatetime(), $this->dateEnd->getDatetime());
+	//Log::Debug("DataAccess/LogAggregator:construct:period:%s start:%s end:%s", $this->period->getLabel(), $this->dateStart->getDatetime(), $this->dateEnd->getDatetime());
 //        echo("[Thang 2016-09-12] Debug var dump @LogAggregator\n");
 //        var_dump($this->dateStart);
 //        var_dump($this->dateEnd);
