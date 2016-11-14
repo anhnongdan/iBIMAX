@@ -1,7 +1,7 @@
-core_2.16.5
+core_2.16.5/
 misc/*.dat
-tmp
-vendor
-config
-nginx
-tests
+tmp/
+vendor/
+config/
+nginx/
+tests/
