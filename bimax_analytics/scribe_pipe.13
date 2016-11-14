@@ -142,7 +142,7 @@ def process_queue(i, q):
     s = subprocess.Popen(command, bufsize=ISB, stdin=subprocess.PIPE)
 
     #wait for the above pipe opened
-    #time.sleep(1)
+    time.sleep(1)
 
     logging.info("[%s] fork pid:%s" % (now, s.pid))
     while True:

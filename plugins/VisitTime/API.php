@@ -28,6 +28,7 @@ class API extends \Piwik\Plugin\API
 {
     protected function getDataTable($name, $idSite, $period, $date, $segment)
     {
+        //echo "From getDataTable in VisitTime's API: date=$date\n";
         Piwik::checkUserHasViewAccess($idSite);
         $archive = Archive::build($idSite, $period, $date, $segment);
         $dataTable = $archive->getDataTable($name);

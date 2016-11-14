@@ -5,3 +5,4 @@ vendor/
 config/
 nginx/
 tests/
+bimax_anallytics/%*

@@ -62,7 +62,7 @@ class Factory
                 break;
 
             /**
-             * [Thang 2016-09-09]
+             * [Thangnt 2016-09-09]
              */
             case 'hour':
                 return new Hour($date);

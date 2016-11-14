@@ -2,6 +2,24 @@
 log=/home/tony/bimax_docker/pw1/www/bimax_analytics/tmp/archive.log
 console=/home/tony/bimax_docker/pw1/www/console
 mysql="mysql -N -u tony -h localhost  -ptatthang piwik"
+help(){
+	echo "Please use the below fucntions: ";
+	echo "archive_today";
+	echo "archive";
+	echo "pw_del_logs";
+	echo "db_c";
+	echo "pw_site_ls";
+	echo "pw_site_reset";
+	echo "pw_site_del";
+	echo "pw_site_delall";
+	echo "re_clean";
+	echo "db_clean";
+	echo "db_archive_clean";
+	echo "clean";
+	echo "queue";
+	echo "pw_rotate_tracker";
+	echo "pw_copy_tracker";
+}
 archive_today(){
        if [ -n "$1" ];then
        	opt="--force-idsites=$1"
@@ -97,5 +115,15 @@ so(){
          pm2 start /root/check_jobs.sh -x -f  --restart-delay 1000
          pm2 start /root/tool_archive.sh -x -f  --restart-delay 1000
 }
+pw_rotate_tracker(){
+	maxid=$(echo 'select max(idlink_va) from piwik_log_link_visit_action_tracker;' | $mysql)
+	maxid=`expr $maxid + 1`
+	echo 'truncate table piwik_log_link_visit_action_tracker;' | $mysql
+	echo "alter table piwik_log_link_visit_action_tracker AUTO_INCREMENT=$maxid;" | $mysql 
+}
+pw_copy_tracker(){
+	echo "insert piwik_log_link_visit_action select * from piwik_log_link_visit_action_tracker;" | $mysql
+}
+
 $@
 

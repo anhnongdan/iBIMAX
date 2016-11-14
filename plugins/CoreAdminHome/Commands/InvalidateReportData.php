@@ -182,7 +182,7 @@ class InvalidateReportData extends ConsoleCommand
         try {
             $period = PeriodFactory::build($periodType, $dateRange);
         } catch (\Exception $ex) {
-            throw new \InvalidArgumentException("Invalid date or date range specifier '$dateRange'", $code = 0, $ex);
+            throw new \InvalidArgumentException("Invalid date or date range specifier (if you put a space after the comma ',' please delete it) '$dateRange'", $code = 0, $ex);
         }
 
         $result = array();

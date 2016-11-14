@@ -215,6 +215,9 @@ class Archive
             $timezone = Site::getTimezoneFor($websiteIds[0]);
         }
 
+        $logger = StaticContainer::get('Psr\Log\LoggerInterface');
+        $logger->debug("From build() of Archive: the date takes in: $strDate");
+        
         if (Period::isMultiplePeriod($strDate, $period)) {
             $oPeriod    = PeriodFactory::build($period, $strDate, $timezone);
             $allPeriods = $oPeriod->getSubperiods();
