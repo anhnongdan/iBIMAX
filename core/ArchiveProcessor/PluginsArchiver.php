@@ -124,10 +124,17 @@ class PluginsArchiver
 
                 try {
                     $timer = new Timer();
+                    
+                    /**
+                     * [Thangnt 2016-11-07] 
+                     */
                     if ($this->isSingleSiteDayArchive) {
-                        Log::debug("PluginsArchiver::%s: Archiving day reports for plugin '%s'.", __FUNCTION__, $pluginName);
-
-                        $archiver->aggregateDayReport();
+                        if ($pluginName === 'VisitTime') {
+                            Log::debug("PluginsArchiver::%s: Archiving hourly data is skipped for plugin '%s'.", __FUNCTION__, $pluginName);
+                        } else {
+                            Log::debug("PluginsArchiver::%s: Archiving day (actually hour) reports for plugin '%s'.", __FUNCTION__, $pluginName);
+                            $archiver->aggregateDayReport();
+                        }
                     } else {
                         Log::debug("PluginsArchiver::%s: Archiving period reports for plugin '%s'.", __FUNCTION__, $pluginName);
 

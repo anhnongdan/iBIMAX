@@ -303,7 +303,6 @@ class Range extends Period
      * The Hour range needs to be parsed separately
      * 2016-10-27: This function doesn't take in string with spaces after comma ','
      *              and 1 digit hour without 0 (01 vs 1)
-     * => fixed accept 1 digit
      * 
      * @param string $dateString what ever satisfy the
      * @return mixed  array(1 => dateStartString, 2 => dateEndString) or `false` if the input was not a date range.

@@ -131,6 +131,14 @@ class Date
 //        echo "From Date's factory \n";
 //        echo "\n ** Let see when this function throw errors: $dateString \n";
         
+        //[Thangnt 2016-11-07] Sometime when VisitTime plugin is calculating,
+        // the input $dateString is wrong.
+//        if( strtotime($dateString) === false ) {
+//            Log::debug("From Date's factory, input date string is empty and exception is gonna happen: $dateString");
+//            $e = new \Exception;
+//            Log::debug($e->getTraceAsString());
+//        }
+        
         if ($dateString instanceof self) {
             $dateString = $dateString->toString();
         }
@@ -1046,6 +1054,7 @@ class Date
         return $secs / self::NUM_SECONDS_IN_DAY;
     }
 
+    //[Thangnt 2016-11-07] This function generate the exception
     private static function getInvalidDateFormatException($dateString)
     {
         $message = Piwik::translate('General_ExceptionInvalidDateFormat', array("YYYY-MM-DD, or 'today' or 'yesterday'", "strtotime", "http://php.net/strtotime"));

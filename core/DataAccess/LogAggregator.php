@@ -129,7 +129,10 @@ class LogAggregator
 
     /** @var \Piwik\Date */
     protected $dateEnd;
-    protected $period;
+    
+    //[Thangnt 2016-11-06] Return to use the boolean var $period_hour
+    //a Period object here is unecessary and memory consuming
+    //protected $period;
 
     /** @var int[] */
     protected $sites;
@@ -159,12 +162,12 @@ class LogAggregator
     {
         $this->dateStart = $params->getDateStart();
         $this->dateEnd = $params->getDateEnd();
-        $this->period = $params->getPeriod();
+        //$this->period = $params->getPeriod();
         if($params->getPeriod()->getLabel()==='hour'){
             $this->period_hour = true;
         }
 
-	Log::Debug("DataAccess/LogAggregator:construct:period:%s start:%s end:%s", $this->period->getLabel(), $this->dateStart->getDatetime(), $this->dateEnd->getDatetime());
+	//Log::Debug("DataAccess/LogAggregator:construct:period:%s start:%s end:%s", $this->period->getLabel(), $this->dateStart->getDatetime(), $this->dateEnd->getDatetime());
 //        echo("[Thang 2016-09-12] Debug var dump @LogAggregator\n");
 //        var_dump($this->dateStart);
 //        var_dump($this->dateEnd);
@@ -186,6 +189,8 @@ class LogAggregator
 //        if($this->period_hour) {
 //            $bind = $this->getQueryBindParamsForHour();
 //        } else {
+        
+        //[Thangnt 2016-11-04] This might be the problem
         $bind = $this->getGeneralQueryBindParams();
 //        }
 
@@ -524,6 +529,13 @@ class LogAggregator
     }
 
     /**
+     * [2016-11-05] I don't know why this bug didn't show up earlier.
+     * The query bind params' time value is 'Y-m-d H:i:s' for Hour but 
+     * Visit Time plugin needs the format Y-m-d and exception occurs. 
+     * [2016-11-06] Problem occurs in the third time calling this from 
+     * VisitTime
+     * 
+     * 
      * Returns general bind parameters for all log aggregation queries. This includes the datetime
      * start of entities, datetime end of entities and IDs of all sites.
      *
@@ -531,7 +543,7 @@ class LogAggregator
      */
     protected function getGeneralQueryBindParams()
     {
-        if($this->period->getLabel()==='hour'){
+        if($this->period_hour){
 		$start = $this->dateStart->getDateStartUTC(Date::DATE_TIME_FORMAT);
 		$end = $this->dateEnd->getDateEndUTC(Date::DATE_TIME_FORMAT);
 	} else {
@@ -546,21 +558,25 @@ class LogAggregator
         return $bind;
     }
 
+    /**
+     * [Thangnt 2016-11-06]
+     * @depricated
+     */
     //TODO: This function is not durable for the invalid hour stamp like 01:14:34
     // need to ensure on archive triggering script or (better, of course!!) improve here.
-    protected function getQueryBindParamsForHour()
-    {
-        //TODO: Not really good to involve Date here
-//        $start = $this->dateStart->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
-        $start = $this->dateStart->getDateStartUTC(Date::DATE_TIME_FORMAT);
-        $end = $this->dateEnd->getDateStartUTC(Date::DATE_TIME_FORMAT);
- //       $end = $this->dateEnd->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
-	Log::Debug("getQueryBindParamsForHour: start:%s end:%s", $start, $end);
-        $bind = array($start, $end);
-        $bind = array_merge($bind, $this->sites);
-
-        return $bind;
-    }
+//    protected function getQueryBindParamsForHour()
+//    {
+//        //TODO: Not really good to involve Date here
+////        $start = $this->dateStart->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
+//        $start = $this->dateStart->getDateStartUTC(Date::DATE_TIME_FORMAT);
+//        $end = $this->dateEnd->getDateStartUTC(Date::DATE_TIME_FORMAT);
+// //       $end = $this->dateEnd->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
+//	Log::Debug("getQueryBindParamsForHour: start:%s end:%s", $start, $end);
+//        $bind = array($start, $end);
+//        $bind = array_merge($bind, $this->sites);
+//
+//        return $bind;
+//    }
 
     /**
      * Executes and returns a query aggregating ecommerce item data (everything stored in the

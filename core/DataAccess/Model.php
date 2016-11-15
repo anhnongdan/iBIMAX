@@ -33,7 +33,11 @@ class Model
 
     public function __construct(LoggerInterface $logger = null)
     {
-        $this->logger = $logger ?: StaticContainer::get('Psr\Log\LoggerInterface');
+        /**
+         * [Thangnt 2016-11-09] @HOWTO
+         * init Psr logger interface  
+         */
+        $this->logger = $this->logger ?: StaticContainer::get('Psr\Log\LoggerInterface');
     }
 
     /**
@@ -98,6 +102,13 @@ class Model
     }
 
     /**
+     * [Thangnt 2016-11-10] When invalidate hour periods, all supper-periods 
+     * need to be invalidated as well.
+     * @TODO: there's "period >= ? AND period < 5" condition so I'm thinking
+     * about changing Hour ID to 0.
+     * => Actually Hour archive is stored in separate tables so the number 
+     * won't do any harm.  
+     * 
      * @param string $archiveTable Prefixed table name
      * @param int[] $idSites
      * @param string[][] $datesByPeriodType
@@ -124,6 +135,13 @@ class Model
             $dateConditionsSql = implode(" OR ", $dateConditions);
             if (empty($periodType)
                 || $periodType == Period\Day::PERIOD_ID
+                /**
+                 * [Thangnt 2016-11-10] Invalidate all for Hour
+                 * There's one more thing to consider is that in case 
+                 * of Hour both archive_temp and archive tables need to 
+                 * be updated.
+                 */
+                || $periodType == Period\Hour::PERIOD_ID
             ) {
                 // invalidate all periods if no period supplied or period is day
                 $periodConditions[] = "($dateConditionsSql)";
@@ -146,6 +164,10 @@ class Model
                    AND idsite IN (" . implode(", ", $idSites) . ")
                    AND (" . implode(" OR ", $periodConditions) . ")";
 
+        //[Thangnt 2016-11-09] 
+        $bi = implode(", ", $bind);
+        $this->logger->debug("Model::updateArchiveAsInvalidated: update sql query: $sql, and Bind: $bi.");
+        
         return Db::query($sql, $bind);
     }
 

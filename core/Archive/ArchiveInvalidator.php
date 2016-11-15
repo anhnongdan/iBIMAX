@@ -19,6 +19,7 @@ use Piwik\Plugins\CoreAdminHome\Tasks\ArchivesToPurgeDistributedList;
 use Piwik\Plugins\PrivacyManager\PrivacyManager;
 use Piwik\Period;
 use Piwik\Segment;
+use Piwik\Log;
 
 /**
  * [Thangnt 2016-10-27] Modify this class to support invalidating hour period
@@ -126,6 +127,10 @@ class ArchiveInvalidator
     }
 
     /**
+     * [Thangnt 2016-11-10]
+     * The periodDates array determines which periods' archive will be invalidate
+     * => Need to make it right for Hour.
+     * 
      * @param $idSites int[]
      * @param $dates Date[]
      * @param $period string
@@ -154,6 +159,10 @@ class ArchiveInvalidator
         }
 
         $periodDates = $this->getUniqueDates($periodDates);
+        
+        $pD = serialize($periodDates);
+//        $pD = implode (', ', $pD);
+        Log::debug("ArchiveInvalidator::markArchivesAsInvalidated: periodDates to invalidate: $pD.");
         // @Thangnt: the real function that invalides archive
         $this->markArchivesInvalidated($idSites, $periodDates, $segment);
 
@@ -225,6 +234,8 @@ class ArchiveInvalidator
     }
 
     /**
+     * [Thangnt 2016-11-10] Return full Year-Month-Day for hour period (temp table)
+     * 
      * @param Period[] $periods
      * @return string[][][]
      */
@@ -235,13 +246,24 @@ class ArchiveInvalidator
             $date = $period->getDateStart();
             $periodType = $period->getId();
 
-            $yearMonth = ArchiveTableCreator::getTableMonthFromDate($date);
+            if ($period->getLabel() === 'hour') {
+                $yearMonth = ArchiveTableCreator::getTableTempDateFromHour($date);
+            } else {
+                $yearMonth = ArchiveTableCreator::getTableMonthFromDate($date);
+            }
             $result[$yearMonth][$periodType][] = $date->toString();
         }
         return $result;
     }
 
     /**
+     * [Thangnt 2016-11-10]
+     * This needs to support Hour periods with temp tables.
+     * Case 1: Input as all period and dates is HOUR
+     * Case 2: Input as all period and dates is DAY
+     * 14:11 I think this is ok, an array of month and date returned with period is NULL 
+     *        just think how to apply this to temp table
+     * 
      * Called when deleting all periods.
      *
      * @param Date[] $dates
@@ -256,6 +278,7 @@ class ArchiveInvalidator
 
             // since we're removing all periods, we must make sure to remove year periods as well.
             // this means we have to make sure the january table is processed.
+            // Thangnt: this mean Year archive will be store in January's archive table
             $janYearMonth = $date->toString('Y') . '_01';
             $result[$janYearMonth][null][] = $date->toString();
         }
@@ -271,9 +294,9 @@ class ArchiveInvalidator
     {
         $archiveNumericTables = ArchiveTableCreator::getTablesArchivesInstalled($type = ArchiveTableCreator::NUMERIC_TABLE);
         
-        echo "** From markArchivesInvalidated in ArchiveInvalidator : \n";
-        print_r($archiveNumericTables);
-        echo "***88***\n";
+        //[Thangnt 2016-11-07]
+//        $tables = implode(",", $archiveNumericTables);
+//        Log::debug("ArchiveInvalidator::markArchivesInvalidated archive Tables detected:  $tables\n");
         
         foreach ($archiveNumericTables as $table) {
             $tableDate = ArchiveTableCreator::getDateFromTableName($table);

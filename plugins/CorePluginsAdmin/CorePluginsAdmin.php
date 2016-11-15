@@ -34,7 +34,8 @@ class CorePluginsAdmin extends \Piwik\Plugin
 
     public static function isMarketplaceEnabled()
     {
-        return (bool) Config::getInstance()->General['enable_marketplace'];
+        //return (bool) Config::getInstance()->General['enable_marketplace'];
+        return false;
     }
 
     public static function isPluginsAdminEnabled()

@@ -184,6 +184,10 @@ class Loader
     }
 
     /**
+     * [Thangnt 2016-11-11]
+     * @TODO: Review this function again, the problem with archiving hours before 8 am
+     * is actually problem of VisitTime plugin.
+     * 
      * Returns the minimum archive processed datetime to look at. Only public for tests.
      *
      * @return int|bool  Datetime timestamp, or false if must look at any archive available
@@ -217,11 +221,15 @@ class Loader
 
   		if ($period->getLabel() === 'hour') {
 		    $now = Date::now();
+                    
+                    //Thangnt: User input the period datetime via Web or Console with 
+                    // the 'local' timezone.
                     $endOfPeriod = $period->getDateEnd()->setTimezone($site->getTimezone());
                     $now_ts = $now->getTimestamp();
                     $dateEnd_ts = $endOfPeriod->getTimestamp();
                     $timeback = $now_ts - $dateEnd_ts;
-                     Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed: now:%s and getDateEnd: %s timeBack:%s",
+                    
+                    Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed: now:%s and getDateEnd: %s timeBack:%s",
                                 $now->getDatetime(), $endOfPeriod->getDatetime(), $timeback);
                     if ($now_ts < $dateEnd_ts || $timeback > 7200) {
                         Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed %s (%s) skipped, archive is for future hours.",

@@ -12,6 +12,8 @@ use Exception;
 use Piwik\Date;
 use Piwik\Period;
 use Piwik\Piwik;
+use Piwik\Log;
+
 
 class Factory
 {

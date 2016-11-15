@@ -21,6 +21,7 @@ use Piwik\Period\Factory as PeriodFactory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Piwik\Log;
 
 /**
  * [Thangnt 2016-10-27] This class defines the console command for 
@@ -41,7 +42,7 @@ class InvalidateReportData extends ConsoleCommand
             'List of site IDs to invalidate report data for, eg, "1,2,3,4" or "all" for all sites.',
             self::ALL_OPTION_VALUE);
         $this->addOption('periods', null, InputOption::VALUE_REQUIRED,
-            'List of period types to invalidate report data for. Can be one or more of the following values: day, '
+            'List of period types to invalidate report data for. Can be one or more of the following values: hour, day, '
             . 'week, month, year or "all" for all of them.',
             self::ALL_OPTION_VALUE);
         $this->addOption('segment', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
@@ -88,8 +89,12 @@ class InvalidateReportData extends ConsoleCommand
 
                     // @Thangnt: date range will be translated to an array of Startdate
                     // These $dates have timezone of UTC so it complies with datetime in Database
-                    $dates = $this->getPeriodDates($periodType, $dateRange);
-
+                    if (strlen($dateRange)>21 && $periodType != 'hour') {
+                        $trimedDateRange = $this->trimOutTimeFromDatetime($dateRange);
+                        $dates = $this->getPeriodDates($periodType, $trimedDateRange);
+                    } else {
+                        $dates = $this->getPeriodDates($periodType, $dateRange);
+                    }
 //                    echo "When InvaldateReportData executes: \n";
 //                    var_dump($dates);
 //                    echo "****\n";
@@ -132,6 +137,10 @@ class InvalidateReportData extends ConsoleCommand
     private function getPeriodTypesToInvalidateFor(InputInterface $input)
     {
         $periods = $input->getOption('periods');
+        
+        //Thangnt: although $periods arrays is checked empty, the fact is that
+        // if no --periods is supplied in the command all periods will be invalidated,
+        // the same as --periods=all
         if (empty($periods)) {
             throw new \InvalidArgumentException("The --periods argument is required.");
         }
@@ -142,6 +151,15 @@ class InvalidateReportData extends ConsoleCommand
             return $result;
         }
 
+        /**
+         * [Thangnt 2016-11-10] In case of HOUR, the related RANGE also needs to
+         * be invalidated as well. 
+         */
+        if ($periods == 'hour') {
+            $result = array_keys(Piwik::$idPeriods);
+            return $result;
+        }
+        
         $periods = explode(',', $periods);
         $periods = array_map('trim', $periods);
 
@@ -180,6 +198,7 @@ class InvalidateReportData extends ConsoleCommand
         }
 
         try {
+            Log::debug("InvalidateReportData::getPeriodDates: take $dateRange of $periodType.");
             $period = PeriodFactory::build($periodType, $dateRange);
         } catch (\Exception $ex) {
             throw new \InvalidArgumentException("Invalid date or date range specifier (if you put a space after the comma ',' please delete it) '$dateRange'", $code = 0, $ex);
@@ -211,5 +230,17 @@ class InvalidateReportData extends ConsoleCommand
             $result[] = new Segment($segmentString, $idSites);
         }
         return $result;
+    }
+    
+    /**
+     * [Thangnt 2016-11-10] Process date range string for other periods 
+     * which are processed along with Hour.
+     */
+    private function trimOutTimeFromDatetime($dateRange) 
+    {
+	$s1 = explode(",", $dateRange);
+	$s2 = explode(" ", $s1[0]);
+	$s3 = explode(" ", $s1[1]);	
+	return $s2[0].','.$s3[0];
     }
 }

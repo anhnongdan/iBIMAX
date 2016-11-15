@@ -219,6 +219,9 @@ class ArchiveProcessor
         foreach ($recordNames as $recordName) {
             $latestUsedTableId = Manager::getInstance()->getMostRecentTableId();
 
+            //[Thangnt 2016-11-07] Debug the strtotime exception of VisitTime
+            Log::debug("[Thangnt 1107] Ar.Proc::aggregateDataTableRecords recordName: $recordName");
+            
             $table = $this->aggregateDataTableRecord($recordName, $columnsAggregationOperation, $columnsToRenameAfterAggregation);
 
             $nameToCount[$recordName]['level0'] = $table->getRowsCount();
@@ -373,6 +376,9 @@ class ArchiveProcessor
                 }
             });
         }
+
+        //[Thangnt 2016-11-07] Debug the strtotime exception of VisitTime
+        //Log::debug("[Thangnt 1107] Ar.Proc::aggregateDataTableRecord dataTable name: $name");
 
         $dataTable = $this->getAggregatedDataTableMap($dataTable, $columnsAggregationOperation);
 
