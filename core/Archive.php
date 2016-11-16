@@ -742,6 +742,64 @@ class Archive
                 }
 */
 
+                if ($period->getLabel() === 'hour') {
+                    
+                    /**
+                     * [Thangnt 2016-11-16]
+                     * @todo After changing Hour getDateStart this might not need the setTimezone anymore
+                     */
+                    $endOfPeriod = $period->getDateEnd()->setTimezone($site->getTimezone());
+                    
+                    /**
+                     * [Thangnt 2016-11-16]
+                     * For some reason, $now which is returned by php's standard date() 
+                     * is in UTC (same as Piwik\Date::now()), while date('Y-m-d H:i:s)
+                     * exec on php command line give 'local' time.
+                     * 
+                     * @TODO: need to set php cli timezone for Piwik.  
+                     */
+                    //in UTC
+                    $now_ts = $now->getTimestamp();
+                    
+                    $dateEnd_ts = $endOfPeriod->getTimestamp();                    
+                    $timeback = $now_ts - $dateEnd_ts;
+//                    Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed: now:%s and getDateEnd: %s",
+//                            $now->getDatetime(), $endOfPeriod->getDatetime());
+                    $config = Config::getInstance()->General;
+                    $time_limit = 3600;
+
+                    /**
+                     * [Thangnt 2016-11-15]
+                     * Avoid using this kind of checking.
+                     * Instead, ensure the default values are set in global.ini.php
+                     */
+//                    if (isset($config['my_period'])) {
+//                        $my_period = $config['my_period'];
+//                    } 
+//                    if (isset($config['my_nperiod_back'])) {
+//                        $my_nperiod_back = $config['my_nperiod_back'];
+//                    } 
+//                    if (isset($time_limit)) {
+//                        $time_limit = $my_period * $my_nperiod_back;
+//                    }
+                    
+                    $my_period = $config['my_period'];
+                    $my_nperiod_back = $config['my_nperiod_back'];
+                    $time_limit = $my_period * $my_nperiod_back;
+                    
+                    //[Thangnt 2016-11-16] The time_limit definition doesn't fit into this context 
+                    // all of archives in the past need to be considered.
+                    //if ($now_ts < $dateEnd_ts || $timeback > $time_limit) {
+                        
+                    if ($now_ts < $dateEnd_ts) {     
+                        Log::debug("ArchiveProcessor/Loader:%s %s (%s) skipped, archive is for future 'hours' periods (now: %s, dateEnd: %s).",
+                            __FUNCTION__, $period->getLabel(), $period->getPrettyString(), $now->getDatetime(), $endOfPeriod->getDatetime());
+                        //return $endDateTimestamp;
+                        continue;
+                    }
+                }
+                
+                
 //                if ($period->getLabel()==='day') {
 //                echo " From cacheArchiveIdsAfterLaunching in CoreArchive - period for each site - : \n";
 //                echo "For site: $site \n";

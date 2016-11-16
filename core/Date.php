@@ -111,6 +111,9 @@ class Date
     }
 
     /**
+     * [Thangnt 2016-11-16] 
+     * All Dates created throw this factory are in UTC no matter what timezone input.
+     * 
      * Creates a new Date instance using a string datetime value. The timezone of the Date
      * result will be in UTC.
      *
@@ -155,6 +158,11 @@ class Date
             $extractedTime = array();
             $extractedTime = self::extractMSFromString($orgDateString);
             //if(sizeof($extractedTime) > 2 && $extractedTime[1]=='00' && $extractedTime[2]=='00') {
+            
+            /**
+             * [Thangnt 2016-11-16]
+             * @TODO: This implies the 'hour' must be configured in 10 min incremental. (($extractedTime[1]) % 10)
+             */
             if(sizeof($extractedTime) > 2 && intval($extractedTime[1]) % 10 == 0 && $extractedTime[2]=='00') {
 //		Log::Debug("Date is hour valid");
                 $date->isValidForHour = true;
@@ -330,6 +338,10 @@ class Date
      * Returns the unix timestamp of the date in UTC, converted from the current
      * timestamp timezone.
      *
+     * [Thangnt 2016-11-16] Damn the guy who wrote this comment. This is soooo ambiguous.
+     * Returned timestamp is in the timezone of this Date instant. Returns in UTC 
+     * if no timezone is set.
+     * 
      * @return int
      */
     public function getTimestamp()

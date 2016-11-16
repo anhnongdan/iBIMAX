@@ -44,8 +44,13 @@ class Hour extends Period
     
     
     /**
+     * [Thangnt 2016-11-15]
+     * @--todo: Call gmdate actually return an UTC time
+     * Notice that Date::factory is also an UTC. 
+     * @todo Recheck every places that call getDateStart of Period.
+     * 
      * 2016-09-20 
-     * Override the getDateStart to "quantitize" the 
+     * Override the getDateStart to "quantize" the 
      * timestamp into the hour frame: n:00:00-n:59:59.
      * 
      * @return Date timestamp of the start of the hour
@@ -53,25 +58,40 @@ class Hour extends Period
     public function getDateStart() {
         $date = parent::getDateStart();
         //$hourStart = gmdate("Y-m-d H:00:00", $date->getTimestamp());
-        $hourStart = gmdate("Y-m-d H:i:00", $date->getTimestamp());
+        //$hourStart = gmdate("Y-m-d H:i:00", $date->getTimestamp());
+        
+        //Use date to generate a string from timestamp. The date() 
+        // give string in server timezone while gmdate() give UTC
+        $hourStart = date("Y-m-d H:i:00", $date->getTimestamp());
+        
         $hourStart = Date::factory($hourStart);
         return $hourStart;
     }
-    
     
     /**
      * [Thang 2016-09-12] DateStart actually is a Date object
      * so it hold time as well.
      * 
-     * @Override getDateEnd of Period class
+     * @Override Period::getDateEnd()
      * Plus 59m 59s to result
      * 
      * @return Date
      */
     public function getDateEnd() {
         //parent::getDateEnd();
+        
+        
+        /**
+         * [Thangnt 2016-11-16] 1:00 am 
+         * @todo: $config['my_period'] checking is duplicated all over the places
+         * need a centralized default value.
+         */
+        $myPeriod = \Piwik\Config::getInstance()->General['my_period'];
+        $toEnd = 1 - (int)$myPeriod;
+   
         $start = $this->getDateStart();
-        return $start->subSeconds(-599);//->subSeconds(1);
+        //\Piwik\Log::debug("Hour::%s dateStart: %s and toEnd = %s", __FUNCTION__, $start->toString("Y-m-d H:i:s"), $toEnd);
+        return $start->subSeconds($toEnd);
         //return $start->subHour(-1)->subSeconds(1);
     }
     

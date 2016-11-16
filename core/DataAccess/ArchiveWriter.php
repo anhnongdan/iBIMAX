@@ -240,6 +240,8 @@ class ArchiveWriter
         return true;
     }
 
+    //[Thangnt 2016-11-16]
+    // This define the date1 and date2 for archives
     protected function getInsertRecordBind()
     {
         //[Thangnt 2016-09-20]
@@ -250,6 +252,8 @@ class ArchiveWriter
                 $this->dateStart->toString('Y-m-d H:i:s'),
                 $this->period->getDateEnd()->toString('Y-m-d H:i:s'),
                 $this->period->getId(),
+                
+                //why date here return the UTC time???
                 date("Y-m-d H:i:s"));
         } else {
         //original

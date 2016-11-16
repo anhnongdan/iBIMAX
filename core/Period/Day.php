@@ -57,7 +57,7 @@ class Day extends Period
 
         $subPeriod = array();
         while ($dateStart->isEarlier($dateEnd)) {
-		Log::Debug("Period/Day:getStealthySubPeriods date:%s hour:%s", $this->getDate()->getDatetime(), $dateStart->getDatetime());
+//            Log::Debug("Period/Day:getStealthySubPeriods date:%s hour:%s", $this->getDate()->getDatetime(), $dateStart->getDatetime());
             $hour = new Hour($dateStart);
             $subPeriod[] = $hour;
             $dateStart = $dateStart->subSeconds($my_period);
