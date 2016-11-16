@@ -55,6 +55,9 @@ class ArchiveSelector
         // It's too bad that Archiver hard-code the day-based archiving everywhere.
         //[Thangnt 2016-09-30]
         // Day also need this, || actually don't
+        //[Thangnt 2016-11-16] This is to compare with date1 and date2 in archive tables
+        // getDateEnd and getDateStart should return in local timezone.
+        // Fix in {link @Hour} instead
         if ($period == Period\Hour::PERIOD_ID ) {
             $dateStartIso = $dateStart->toString('Y-m-d H:i:s');
             $dateEndIso   = $params->getPeriod()->getDateEnd()->toString('Y-m-d H:i:s');
@@ -79,6 +82,7 @@ class ArchiveSelector
         $doneFlags      = Rules::getDoneFlags($plugins, $segment);
         $doneFlagValues = Rules::getSelectableDoneFlagValues();
 
+        \Piwik\Log::debug("ArchiveSelector::%s dateStartIso: %s EndIso: %s ts_archiveUTC: %s", __FUNCTION__, $dateStartIso, $dateEndIso, $minDatetimeIsoArchiveProcessedUTC);
         $results = self::getModel()->getArchiveIdAndVisits($numericTable, $idSite, $period, $dateStartIso, $dateEndIso, $minDatetimeIsoArchiveProcessedUTC, $doneFlags, $doneFlagValues);
 
         if (empty($results)) {

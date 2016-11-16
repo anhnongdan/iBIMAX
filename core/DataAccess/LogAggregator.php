@@ -524,6 +524,9 @@ class LogAggregator
     }
 
     /**
+     * [Thangnt 2016-11-16]
+     * Query bind params is converted to UTC for querying.
+     * 
      * Returns general bind parameters for all log aggregation queries. This includes the datetime
      * start of entities, datetime end of entities and IDs of all sites.
      *
@@ -539,15 +542,20 @@ class LogAggregator
 		$end = $this->dateEnd->getDateEndUTC();
 	}
         //$bind = array($this->dateStart->getDateStartUTC(), $this->dateEnd->getDateEndUTC());
-	Log::Debug("getGeneralQueryBindParams: start:%s end:%s", $start, $end);
+	Log::Debug("LogAggr::%s: start:%s end:%s", __FUNCTION__, $start, $end);
         $bind = array($start, $end);
         $bind = array_merge($bind, $this->sites);
 
         return $bind;
     }
 
-    //TODO: This function is not durable for the invalid hour stamp like 01:14:34
-    // need to ensure on archive triggering script or (better, of course!!) improve here.
+    /**
+     * [Thangnt 2016-11-16]
+     * This is deprecated.
+     * 
+     * @return type
+     * @deprecated
+     */
     protected function getQueryBindParamsForHour()
     {
         //TODO: Not really good to involve Date here

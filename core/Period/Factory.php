@@ -20,7 +20,7 @@ class Factory
      *
      * _Note: This method cannot create {@link Period\Range} periods._
      *
-     * @param string $period `"day"`, `"week"`, `"month"`, `"year"`, `"range"`.
+     * @param string $period `"hour"`, `"day"`, `"week"`, `"month"`, `"year"`, `"range"`.
      * @param Date|string $date A date within the period or the range of dates.
      * @param Date|string $timezone Optional timezone that will be used only when $period is 'range' or $date is 'last|previous'
      * @throws Exception If `$strPeriod` is invalid.

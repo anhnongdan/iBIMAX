@@ -190,16 +190,38 @@ class Loader
      */
     protected function getMinTimeArchiveProcessed()
     {
+        /**
+         * [Thangnt 2016-11-16]
+         * @todo It seems that the period passed into params is set wrong timezone in the first place
+         */
 	//Log::Debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed");
-        //[Thangnt 2016-09-21] For Hour return the end time of that hour.
         $period = $this->params->getPeriod();
-/*
-        if ($period->getId()===6){
-            $this->temporaryArchive = false;
-            return $this->params->getDateEnd()->getTimestampUTC();
+        
+        //[Thangnt 2016-09-21] For Hour return the end time of that hour.
+        /**
+         * [Thangnt 2016-11-16] This is kind of lazy solution, but it's much 
+         * easier to eliminate the "temporary" definition for 'hour' period 
+         * archive.
+         * When check temporary for 'hour' archive, there's problem with 
+         * getDateStartUTC below in determineIfArchivePermanent.
+         */
+//        if ($period->getLabel()=== 'hour'){
+//            $this->temporaryArchive = false;
+//            $endHourTimeStamp = $period->getDateEnd()->getTimestampUTC();
+//            if($endHourTimeStamp <= now) {
+//                return $endHourTimeStamp;
+//            }
+//        }
+
+        //Thangnt 2016-11-16 getDateEnd always give 23:59:59 even when period is hour
+        //Log::debug("Loader::%s start:%s, end:%s.", __FUNCTION__, $period->getDateStart()->toString("Y-m-d H:i:s"), $period->getDateEnd()->toString("Y-m-d H:i:s"));
+        
+        if ($period->getLabel()=== 'hour') {
+            $endDateTimestamp = self::determineIfArchivePermanent($this->params->getDateEnd(), $isHour = true);
+        } else {
+            $endDateTimestamp = self::determineIfArchivePermanent($this->params->getDateEnd());
         }
-*/
-        $endDateTimestamp = self::determineIfArchivePermanent($this->params->getDateEnd());
+//        $endDateTimestamp = self::determineIfArchivePermanent($this->params->getDateEnd());
         $isArchiveTemporary = ($endDateTimestamp === false);
         $this->temporaryArchive = $isArchiveTemporary;
 
@@ -213,51 +235,78 @@ class Loader
 //        $period    = $this->params->getPeriod();
         $segment   = $this->params->getSegment();
         $site      = $this->params->getSite();
-
-
-  		if ($period->getLabel() === 'hour') {
-		    $now = Date::now();
-                    $endOfPeriod = $period->getDateEnd()->setTimezone($site->getTimezone());
-                    $now_ts = $now->getTimestamp();
-                    $dateEnd_ts = $endOfPeriod->getTimestamp();
-                    $timeback = $now_ts - $dateEnd_ts;
-//                     Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed: now:%s and getDateEnd: %s timeBack:%s",
-//                                $now->getDatetime(), $endOfPeriod->getDatetime(), $timeback);
-		$config = Config::getInstance()->General;
-	    	$time_limit = 3600;
-/*	
-	        if (isset($config['time_limit'])) {
-        	    $time_limit= $config['time_limit'];
-        	} 
-*/
-	        if (isset($config['my_period'])) {
-        	    $my_period = $config['my_period'];
-        	} 
-	        if (isset($config['my_nperiod_back'])) {
-        	    $my_nperiod_back = $config['my_nperiod_back'];
-        	} 
-	 	if (isset($time_limit)) {
-                    $time_limit = $my_period * $my_nperiod_back;
-                }	
-		    //Log::Debug("time_limit:%s", $time_limit);
-                    if ($now_ts < $dateEnd_ts || $timeback > $time_limit) {
-//                        Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed %s (%s) skipped, archive is for future hours.",
-//                            $period->getLabel(), $period->getPrettyString());
-			return $endDateTimestamp;
-                    }
-                }
-
-
+        
+        /**
+         * [Thangnt 2016-11-16]
+         * Moved this block to Piwik\Archive::cacheArchiveIdsAfterLaunching.
+         * This function called to check the existing archives and determine
+         * whether that should be permanent or temporary, which are managed to
+         * calculated properly in term of time and validation. 
+         * Put this process here cause all 'hour' (include future) in a day to be 
+         * calculated and archives always marked 'temporary done' (value=3). 
+         * Basically that is wrong behavior of archiving.
+         */
+        
+//        if ($period->getLabel() === 'hour') {
+//            $now = Date::now();
+//            $endOfPeriod = $period->getDateEnd()->setTimezone($site->getTimezone());
+//            
+//            $now_ts = $now->getTimestamp();
+//            $dateEnd_ts = $endOfPeriod->getTimestamp();
+//            $timeback = $now_ts - $dateEnd_ts;
+////                     Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed: now:%s and getDateEnd: %s timeBack:%s",
+////                                $now->getDatetime(), $endOfPeriod->getDatetime(), $timeback);
+//            $config = Config::getInstance()->General;
+//            $time_limit = 3600;
+//  
+//            /**
+//             * [Thangnt 2016-11-15]
+//             * Set default values. 
+//             * This prevents errors by missed config in config.php.ini as well
+//             */
+//            $my_period = 60;
+//            $my_nperiod_back = 2;
+//            
+//            if (isset($config['my_period'])) {
+//                $my_period = $config['my_period'];
+//            } 
+//            if (isset($config['my_nperiod_back'])) {
+//                $my_nperiod_back = $config['my_nperiod_back'];
+//            } 
+//            if (isset($time_limit)) {
+//                $time_limit = $my_period * $my_nperiod_back;
+//            }	
+//            //Log::Debug("time_limit:%s", $time_limit);
+//            if ($now_ts < $dateEnd_ts || $timeback > $time_limit) {
+////                        Log::debug("ArchiveProcessor/Loader:getMinTimeArchiveProcessed %s (%s) skipped, archive is for future hours.",
+////                            $period->getLabel(), $period->getPrettyString());
+//                return $endDateTimestamp;
+//            }
+//        }
 
         // Temporary archive
         return Rules::getMinTimeProcessedForTemporaryArchive($dateStart, $period, $segment, $site);
     }
 
-    protected static function determineIfArchivePermanent(Date $dateEnd)
+    protected static function determineIfArchivePermanent(Date $dateEnd, $isHour = false)
     {
+        //both of these are UTC
         $now = time();
-        $endTimestampUTC = strtotime($dateEnd->getDateEndUTC());
-
+        
+        /**
+         * [Thangnt 2016-11-16] The original has a serious problem with this getDateEndUTC()
+         * when involve 'hour' period. The end is 23:59:59 for what ever the hour.
+         * 
+         * @todo similar check the whole core.
+         */
+        if ($isHour) {
+            $endTimestampUTC = strtotime($dateEnd->getDateEndUTC($format="Y-m-d H:i:s"));
+        } else {
+            $endTimestampUTC = strtotime($dateEnd->getDateEndUTC());
+        }
+            
+        Log::debug("Loader::%s now is: %s, and endTimestampUTC: %s.", __FUNCTION__, date("Y-m-d H:i:s", $now), date("Y-m-d H:i:s", $endTimestampUTC)); 
+        
         if ($endTimestampUTC <= $now) {
             return $endTimestampUTC;
     	} 
