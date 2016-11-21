@@ -36,8 +36,8 @@
                 case 'pageviews_evolution':
                     metric = 'nb_pageviews';
                     break;
-                case 'revenue_evolution':
-                    metric = 'revenue';
+                case 'nb_total_overall_bandwidth_evolution':
+                    metric = 'nb_total_overall_bandwidth';
                     break;
             }
 

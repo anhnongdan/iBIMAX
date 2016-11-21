@@ -14,7 +14,8 @@
  *     evolution-metric="visits_evolution"
  *     show-sparklines="true"
  *     date-sparkline="2014-01-01,2014-02-02"
- *     display-revenue-column="true"
+ *     display-bandwidth-column="true"
+ *     display-avgbandwidth-column="true"
  *     </div>
  */
 (function () {
@@ -32,7 +33,8 @@
                 evolutionMetric: '=',
                 showSparklines: '=',
                 dateSparkline: '=',
-                displayRevenueColumn: '=',
+                displayBandwidthColumn: '=',
+                displayAvgBandwidthColumn: '=',
                 metric: '='
             },
             templateUrl: 'plugins/MultiSites/angularjs/site/site.directive.html?cb=' + piwik.cacheBuster,

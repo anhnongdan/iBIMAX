@@ -14,10 +14,11 @@
 
     <div id="main">
         <div piwik-multisites-dashboard
-             display-revenue-column="{% if displayRevenueColumn %}true{% else %}false{%endif%}"
-             page-size="{{ limit }}"
-             show-sparklines="{% if show_sparklines %}true{% else %}false{%endif%}"
-             date-sparkline="{{ dateSparkline }}"
+             page-size="{{ limit }}" 
+ {#            show-sparklines="{% if show_sparklines %}true{% else %}false{%endif%}"
+             date-sparkline="{{ dateSparkline }}"#}
+             display-bandwidth-column="{% if displayBandwidthColumn %}true{% else %}false{%endif%}"
+             {#display-avgbandwidth-column="{% if displayAvgBandwidthColumn %}true{% else %}false{%endif%}"#}
              auto-refresh-today-report="{{ autoRefreshTodayReport }}">
         </div>
     </div>

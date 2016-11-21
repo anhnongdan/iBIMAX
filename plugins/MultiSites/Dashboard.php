@@ -40,9 +40,9 @@ class Dashboard
      * Array of metrics that will be displayed and will be number formatted
      * @var array
      */
-    private $displayedMetricColumns = array('nb_visits', 'nb_pageviews', 'nb_actions', 'revenue');
-
-    /**
+    //private $displayedMetricColumns = array('nb_visits', 'nb_pageviews', 'nb_actions', 'nb_total_overall_bandwidth', 'avg_bandwidth');
+    private $displayedMetricColumns = array('nb_visits', 'nb_pageviews', 'nb_actions', 'nb_total_overall_bandwidth');
+    /** 
      * @param string $period
      * @param string $date
      * @param string|false $segment
@@ -103,36 +103,78 @@ class Dashboard
         return $sites;
     }
 
+    /*
+     * Show the total value for each metrics, 
+     * see API::getApiMetrics().
+     */
     public function getTotals()
     {
+        $allMetaData = $this->sitesByGroup->getAllTableMetadata();
+        
         $totals = array(
             'nb_pageviews'       => $this->sitesByGroup->getMetadata('total_nb_pageviews'),
             'nb_visits'          => $this->sitesByGroup->getMetadata('total_nb_visits'),
             'nb_actions'         => $this->sitesByGroup->getMetadata('total_nb_actions'),
-            'revenue'            => $this->sitesByGroup->getMetadata('total_revenue'),
+            //'revenue'            => $this->sitesByGroup->getMetadata('total_revenue'),
+            
+            'nb_total_overall_bandwidth'            => $this->sitesByGroup->getMetadata('total_nb_total_overall_bandwidth'),
             'nb_visits_lastdate' => $this->sitesByGroup->getMetadata('total_nb_visits_lastdate') ? : 0,
         );
         $this->formatMetrics($totals);
         return $totals;
     }
 
+    /*#Thang 05/30: modify this to "quickly" calculate the avg Bandwidth.
+     * No evolution data with this method.
+     */
     private function formatMetrics(&$metrics)
     {
         $formatter = NumberFormatter::getInstance();
+        
+        //$metrics["avg_bandwidth"] = $this->calculateAvgBandwidth($metrics["nb_total_overall_bandwidth"],$metrics["nb_pageviews"]);
+        
         foreach($metrics as $metricName => &$value) {
             if(in_array($metricName, $this->displayedMetricColumns)) {
 
-                if( strpos($metricName, 'revenue') !== false) {
-                    $currency = isset($metrics['idsite']) ? Site::getCurrencySymbolFor($metrics['idsite']) : '';
-                    $value  = $formatter->formatCurrency($value, $currency);
-                    continue;
+                /*#Thang 05/27 modify this to get total value of  bandwidth 
+                 * No more money, no need for the below
+                 */ 
+                
+                //get the right unit for Bandwidth
+//                if( strpos($metricName, "nb_total_overall_bandwidth") !== false ||
+//                    strpos($metricName, "avg_bandwidth") !== false ) {
+//                    $formatter = new Formatter();
+//                    $value = $formatter->getPrettySizeFromBytes($value, null, $precision=2);
+//                }else {
+//                    $value = $formatter->format($value);
+//                }
+                
+                if( strpos($metricName, "nb_total_overall_bandwidth") !== false) {
+                    $formatter = new Formatter();
+                    $value = $formatter->getPrettySizeFromBytes($value, null, $precision=2);
+                }else {
+                    $value = $formatter->format($value);
                 }
-                $value = $formatter->format($value);
+                //$value = $formatter->format($value);
             }
         }
     }
 
-
+    /**
+     * [Thangnt 2016-11-21]
+     * 
+     * @param type $overallBW
+     * @param type $hits
+     * @return int
+     */
+    private function calculateAvgBandwidth($overallBW, $hits){
+        if($overallBW!=0 && $hits!=0) {
+            return intval($overallBW/$hits);
+        }else {
+            return 0;
+        }
+    }
+    
     public function getNumSites()
     {
         return $this->numSites;
@@ -306,9 +348,13 @@ class Dashboard
         // filter_sort_column does not work correctly is a bug in MultiSites.getAll
         if (!empty($request['filter_sort_column']) && $request['filter_sort_column'] === 'nb_pageviews') {
             $request['filter_sort_column'] = 'Actions_nb_pageviews';
-        } elseif (!empty($request['filter_sort_column']) && $request['filter_sort_column'] === 'revenue') {
-            $request['filter_sort_column'] = 'Goal_revenue';
-        }
+        } 
+        /*#Thang 05/27
+         * Comment out this, no more revenue column
+         */
+//        elseif (!empty($request['filter_sort_column']) && $request['filter_sort_column'] === 'revenue') {
+//            $request['filter_sort_column'] = 'Goal_revenue';
+//        }
 
         // make sure no limit filter is applied, we will do this manually
         $table->disableFilter('Limit');
