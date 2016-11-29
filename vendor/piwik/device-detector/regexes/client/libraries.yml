@@ -32,3 +32,16 @@
 - regex: '(?:perlclient|libwww-perl)(?:/?(\d+[\.\d]+))?'
   name: 'Perl'
   version: '$1'
+
+- regex: 'okhttp/([\d\.]+)'
+  name: 'OkHttp'
+  version: '$1'
+
+- regex: 'Lavf[/]([\d\.]+)'
+  name: 'Android Lavf'
+  version: '$1'
+  
+- regex: 'stagefright[/]([\d\.]+)'
+  name: 'Android Stagefright'
+  version: '$1'
+  

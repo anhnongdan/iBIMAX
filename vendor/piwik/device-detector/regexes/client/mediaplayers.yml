@@ -77,8 +77,12 @@
   name: 'Kodi'
   version: '$1'
 
-- regex: 'stagefright(?:/([\d\.]+))?'
+- regex: 'stagefright(?:[/]([\d\.]+))?'
   name: 'Stagefright'
+  version: '$1'
+
+- regex: 'Lavf[/](?:[/]([\d\.]+))?'
+  name: 'Lavf'
   version: '$1'
 
 - regex: 'Instacast(?:/([\d\.]+))? CFNetwork/([\d\.]+)'
