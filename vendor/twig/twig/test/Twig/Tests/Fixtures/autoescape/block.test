@@ -16,6 +16,6 @@ blocks and autoescape
 --DATA--
 return array('br' => '<br />')
 --CONFIG--
-return array('autoescape' => 'name')
+return array('autoescape' => 'filename')
 --EXPECT--
 &lt;br /&gt;
