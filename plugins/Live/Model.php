@@ -56,7 +56,7 @@ class Model
 					" . $sqlCustomVariables . ",
 					log_action_event_category.name AS eventCategory,
 					log_action_event_action.name as eventAction
-				FROM " . Common::prefixTable('log_link_visit_action', 1) . " AS log_link_visit_action
+				FROM " . Common::prefixTable('log_link_visit_action') . " AS log_link_visit_action
 					LEFT JOIN " . Common::prefixTable('log_action') . " AS log_action
 					ON  log_link_visit_action.idaction_url = log_action.idaction
 					LEFT JOIN " . Common::prefixTable('log_action') . " AS log_action_title

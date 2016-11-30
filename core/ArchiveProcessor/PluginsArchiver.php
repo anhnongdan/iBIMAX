@@ -98,8 +98,8 @@ class PluginsArchiver
      */
     public function callAggregateAllPlugins($visits, $visitsConverted)
     {
-        //Log::debug("PluginsArchiver::%s: Initializing archiving process for all plugins [visits = %s, visits converted = %s]",
-          //  __FUNCTION__, $visits, $visitsConverted);
+        Log::debug("PluginsArchiver::%s: Initializing archiving process for all plugins [visits = %s, visits converted = %s]",
+            __FUNCTION__, $visits, $visitsConverted);
 
         $this->archiveProcessor->setNumberOfVisits($visits, $visitsConverted);
 

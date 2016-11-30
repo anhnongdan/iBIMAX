@@ -34,7 +34,7 @@ class UpdateCheck
      */
     public static function check($force = false, $interval = null)
     {
-        if (!self::isAutoUpdateEnabled()) {
+        if (!SettingsPiwik::isAutoUpdateEnabled()) {
             return;
         }
 
