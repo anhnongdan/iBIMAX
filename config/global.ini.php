@@ -138,10 +138,9 @@ disable_merged_assets = 0
 ; year and range periods are disabled by default, to ensure optimal performance for high traffic Piwik instances
 ; if you set it to 1 and want the Unique Visitors to be re-processed for reports in the past, drop all piwik_archive_* tables
 ; it is recommended to always enable Unique Visitors and Unique Users processing for 'day' periods
-; [Thangnt 2016-10-03] Disable unique visitors calculation for temporary Hourly archiving solution.
-enable_processing_unique_visitors_day = 0
-enable_processing_unique_visitors_week = 0
-enable_processing_unique_visitors_month = 0
+enable_processing_unique_visitors_day = 1
+enable_processing_unique_visitors_week = 1
+enable_processing_unique_visitors_month = 1
 enable_processing_unique_visitors_year = 0
 enable_processing_unique_visitors_range = 0
 
@@ -313,6 +312,33 @@ minimum_memory_limit = 128
 ; Set to "-1" to always use the configured memory_limit value in php.ini file.
 minimum_memory_limit_when_archiving = 768
 
+
+; List of proxy headers for client IP addresses
+;
+; CloudFlare (CF-Connecting-IP)
+;proxy_client_headers[] = HTTP_CF_CONNECTING_IP
+;
+; ISP proxy (Client-IP)
+;proxy_client_headers[] = HTTP_CLIENT_IP
+;
+; de facto standard (X-Forwarded-For)
+;proxy_client_headers[] = HTTP_X_FORWARDED_FOR
+
+; List of proxy headers for host IP addresses
+;
+; de facto standard (X-Forwarded-Host)
+;proxy_host_headers[] = HTTP_X_FORWARDED_HOST
+
+; List of proxy IP addresses (or IP address ranges) to skip (if present in the above headers).
+; Generally, only required if there's more than one proxy between the visitor and the backend web server.
+;
+; Examples:
+;proxy_ips[] = 204.93.240.*
+;proxy_ips[] = 204.93.177.0/24
+;proxy_ips[] = 199.27.128.0/21
+;proxy_ips[] = 173.245.48.0/20
+
+
 ; Piwik will check that usernames and password have a minimum length, and will check that characters are "allowed"
 ; This can be disabled, if for example you wish to import an existing User database in Piwik and your rules are less restrictive
 disable_checks_usernames_attributes = 0
@@ -442,6 +468,12 @@ multisites_refresh_after_seconds = 300
 ; e.g., a reverse proxy using https-to-http, or a web server that doesn't
 ; set the HTTPS environment variable.
 assume_secure_protocol = 0
+
+; Set to 1 if you're using more than one server for your Piwik installation. For example if you are using Piwik in a
+; load balanced environment, if you have configured failover or if you're just using multiple servers in general.
+; By enabling this flag we will for example not allow the installation of a plugin via the UI as a plugin would be only
+; installed on one server or a config one change would be only made on one server instead of all servers.
+multi_server_environment = 0
 
 ; List of proxy headers for client IP addresses
 ;
@@ -800,11 +832,13 @@ Plugins[] = SegmentEditor
 Plugins[] = Insights
 Plugins[] = Morpheus
 Plugins[] = Contents
+Plugins[] = TestRunner
 Plugins[] = BulkTracking
 Plugins[] = Resolution
 Plugins[] = DevicePlugins
 Plugins[] = Heartbeat
 Plugins[] = Intl
+Plugins[] = Marketplace
 Plugins[] = ProfessionalServices
 Plugins[] = UserId
 Plugins[] = CustomPiwikJs
