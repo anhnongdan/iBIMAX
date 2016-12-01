@@ -36,12 +36,13 @@
 - regex: 'okhttp/([\d\.]+)'
   name: 'OkHttp'
   version: '$1'
-
-- regex: 'Lavf[/]([\d\.]+)'
+  
+#[Thangnt 2016-11-30] The regex should starts with (^) patterns, exclude browser and app use these lib
+- regex: '^Lavf[/]([\d\.]+)'
   name: 'Android Lavf'
   version: '$1'
   
-- regex: 'stagefright[/]([\d\.]+)'
-  name: 'Android Stagefright'
-  version: '$1'
+#- regex: '^stagefright[/]([\d\.]+)'
+#  name: 'Android Stagefright'
+#  version: '$1'
   

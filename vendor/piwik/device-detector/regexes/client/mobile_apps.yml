@@ -135,4 +135,29 @@
   regex: 'i[cC]atcher[^\d]+([\d\.]+)'
   name: 'iCatcher'
   version: '$1'
-
+#[Thangnt 2016-11-30] Add CDN customer's apps
+-
+  regex: 'TalkTV'
+  name: 'TalkTV'
+- 
+  regex: 'vnTalk'
+  name: 'vnTalk' 
+- 
+  regex: 'VTVgo'
+  name: 'VTVgo'
+- 
+  regex: 'FBAV/([\d\.]+)'
+  name: 'Facebook'
+  version: '$1'
+- 
+  regex: 'Tivi-Viet-Hay/([\d\.]+)'
+  name: 'Tivi Viet Hay'
+  version: '$1'
+- 
+  regex: 'LG Player ([\d\.]+)'
+  name: 'LG Player'
+  version: '$1'
+- 
+  regex: 'Haivlapp/([\d\.]+)'
+  name: 'LG Player'
+  version: '$1'
