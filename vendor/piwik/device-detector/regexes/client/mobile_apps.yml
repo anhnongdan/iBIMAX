@@ -137,18 +137,17 @@
   version: '$1'
 #[Thangnt 2016-11-30] Add CDN customer's apps
 -
-  regex: 'TalkTV'
+  regex: 'TalkTV|Talk Tv'
   name: 'TalkTV'
+  version: ''
 - 
   regex: 'vnTalk'
-  name: 'vnTalk' 
+  name: 'vnTalk'
+  version: ''
 - 
   regex: 'VTVgo'
   name: 'VTVgo'
-- 
-  regex: 'FBAV/([\d\.]+)'
-  name: 'Facebook'
-  version: '$1'
+  version: ''
 - 
   regex: 'Tivi-Viet-Hay/([\d\.]+)'
   name: 'Tivi Viet Hay'
