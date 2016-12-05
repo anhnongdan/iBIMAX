@@ -21,11 +21,6 @@ class UpdateCheck
     const LATEST_VERSION = 'UpdateCheck_LatestVersion';
     const SOCKET_TIMEOUT = 2;
 
-    private static function isAutoUpdateEnabled()
-    {
-        return (bool) Config::getInstance()->General['enable_auto_update'];
-    }
-
     /**
      * Check for a newer version
      *

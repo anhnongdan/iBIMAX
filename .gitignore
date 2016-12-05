@@ -1,6 +1,4 @@
 /core_2.16.5/
-/nginx/
-/tests/
 /bimax_anallytics/%*
 
 php_errors.log
@@ -8,7 +6,7 @@ php_errors.log
 *.pyc
 .DS_Store
 /*.log
-
+/.idea/
 /bootstrap.php
 /build
 /composer.phar
@@ -38,7 +36,6 @@ php_errors.log
 /robots.txt
 /tmp/*
 !/tmp/.gitkeep
-/vendor/
 /.cache
 /.externalToolBuilders
 /.idea/*

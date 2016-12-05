@@ -155,6 +155,9 @@ enable_processing_unique_visitors_multiple_sites = 0
 enabled_periods_UI = "hour,day,week,month,year,range"
 enabled_periods_API = "hour,day,week,month,year,range"
 
+; New parameter for 2.12.7 version.
+ multi_server_environment=0
+
 ; whether to enable subquery cache for Custom Segment archiving queries
 enable_segments_subquery_cache = 0
 ; Any segment subquery that matches more than segments_subquery_cache_limit IDs will not be cached,
