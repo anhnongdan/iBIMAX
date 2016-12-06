@@ -1,6 +1,4 @@
 /core_2.16.5/
-/nginx/
-/tests/
 /bimax_anallytics/%*
 
 php_errors.log
@@ -12,7 +10,7 @@ php_errors.log
 /bootstrap.php
 /build
 /composer.phar
-/config/config*
+/config/config.ini.php
 /config/*.pem
 /crossdomain.xml
 /documentation
@@ -38,7 +36,6 @@ php_errors.log
 /robots.txt
 /tmp/*
 !/tmp/.gitkeep
-/vendor/
 /.cache
 /.externalToolBuilders
 /.idea/*
