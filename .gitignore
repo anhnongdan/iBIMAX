@@ -1,5 +1,6 @@
 /core_2.16.5/
 /bimax_anallytics/%*
+/piwik/
 
 php_errors.log
 *.tmp
