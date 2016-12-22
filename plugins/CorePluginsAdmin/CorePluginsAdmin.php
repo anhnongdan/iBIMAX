@@ -28,6 +28,16 @@ class CorePluginsAdmin extends \Piwik\Plugin
     public function getStylesheetFiles(&$stylesheets)
     {
         $stylesheets[] = "plugins/CorePluginsAdmin/stylesheets/plugins_admin.less";
+<<<<<<< HEAD
+=======
+        $stylesheets[] = "plugins/CorePluginsAdmin/stylesheets/plugin-details.less";
+    }
+
+    public static function isMarketplaceEnabled()
+    {
+        //return (bool) Config::getInstance()->General['enable_marketplace'];
+        return false;
+>>>>>>> archiving_invalidating_dev
     }
 
     public static function isPluginsAdminEnabled()

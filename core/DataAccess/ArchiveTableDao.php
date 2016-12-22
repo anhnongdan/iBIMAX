@@ -13,6 +13,10 @@ use Piwik\Config;
 use Piwik\Db;
 
 /**
+ * [Thangnt 2016-10-27]
+ * @TODO: This should support for temp_archive also, as well as ArchiveTablesAnalyzer. 
+ * 
+ * 
  * Data Access class for querying numeric & blob archive tables.
  */
 class ArchiveTableDao

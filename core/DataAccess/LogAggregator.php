@@ -159,7 +159,7 @@ class LogAggregator
     {
         $this->dateStart = $params->getDateStart();
         $this->dateEnd = $params->getDateEnd();
-        $this->period = $params->getPeriod();
+        //$this->period = $params->getPeriod();
         if($params->getPeriod()->getLabel()==='hour'){
             $this->period_hour = true;
         }
@@ -186,6 +186,8 @@ class LogAggregator
 //        if($this->period_hour) {
 //            $bind = $this->getQueryBindParamsForHour();
 //        } else {
+        
+        //[Thangnt 2016-11-04] This might be the problem
         $bind = $this->getGeneralQueryBindParams();
 //        }
 
@@ -524,6 +526,11 @@ class LogAggregator
     }
 
     /**
+     * [2016-11-05] I don't know why this bug didn't show up earlier.
+     * The query bind params' time value is 'Y-m-d H:i:s' for Hour but 
+     * Visit Time plugin needs the format Y-m-d and exception occurs. 
+     * [2016-11-06] Problem occurs in the third time calling this from 
+     * VisitTime
      * [Thangnt 2016-11-16]
      * Query bind params is converted to UTC for querying.
      * 
@@ -534,7 +541,7 @@ class LogAggregator
      */
     protected function getGeneralQueryBindParams()
     {
-        if($this->period->getLabel()==='hour'){
+        if($this->period_hour){
 		$start = $this->dateStart->getDateStartUTC(Date::DATE_TIME_FORMAT);
 		$end = $this->dateEnd->getDateEndUTC(Date::DATE_TIME_FORMAT);
 	} else {
@@ -556,19 +563,21 @@ class LogAggregator
      * @return type
      * @deprecated
      */
-    protected function getQueryBindParamsForHour()
-    {
-        //TODO: Not really good to involve Date here
-//        $start = $this->dateStart->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
-        $start = $this->dateStart->getDateStartUTC(Date::DATE_TIME_FORMAT);
-        $end = $this->dateEnd->getDateStartUTC(Date::DATE_TIME_FORMAT);
- //       $end = $this->dateEnd->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
-	Log::Debug("getQueryBindParamsForHour: start:%s end:%s", $start, $end);
-        $bind = array($start, $end);
-        $bind = array_merge($bind, $this->sites);
-
-        return $bind;
-    }
+    //TODO: This function is not durable for the invalid hour stamp like 01:14:34
+    // need to ensure on archive triggering script or (better, of course!!) improve here.
+//    protected function getQueryBindParamsForHour()
+//    {
+//        //TODO: Not really good to involve Date here
+////        $start = $this->dateStart->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
+//        $start = $this->dateStart->getDateStartUTC(Date::DATE_TIME_FORMAT);
+//        $end = $this->dateEnd->getDateStartUTC(Date::DATE_TIME_FORMAT);
+// //       $end = $this->dateEnd->setTimezone('UTC')->toString(Date::DATE_TIME_FORMAT);
+//	Log::Debug("getQueryBindParamsForHour: start:%s end:%s", $start, $end);
+//        $bind = array($start, $end);
+//        $bind = array_merge($bind, $this->sites);
+//
+//        return $bind;
+//    }
 
     /**
      * Executes and returns a query aggregating ecommerce item data (everything stored in the

@@ -89,8 +89,8 @@ class Date
 
     /**
      * [Thangnt 2016-09-16]
-     * I feel that Date REALLY shouldn't bother
-     * about the Hour.
+     * I feel that Date REALLY shouldn't be bothered
+     * by the Hour.
      */
     private $isValidForHour = false;
 
@@ -129,6 +129,20 @@ class Date
     {
         $orgDateString = $dateString;
 
+        // Thangnt 2016-10-26 @DEBUG
+        //$e = new \Exception;
+        //var_dump($e->getTraceAsString());
+//        echo "From Date's factory \n";
+//        echo "\n ** Let see when this function throw errors: $dateString \n";
+        
+        //[Thangnt 2016-11-07] Sometime when VisitTime plugin is calculating,
+        // the input $dateString is wrong.
+//        if( strtotime($dateString) === false ) {
+//            Log::debug("From Date's factory, input date string is empty and exception is gonna happen: $dateString");
+//            $e = new \Exception;
+//            Log::debug($e->getTraceAsString());
+//        }
+        
         if ($dateString instanceof self) {
             $dateString = $dateString->toString();
         }
@@ -154,6 +168,7 @@ class Date
             $date = new Date($dateString);
             /**
              * [Thangnt 2016-09-16]
+             * 2016-10-27 Modified this for compatibility with `'hour`' != 60 mins
              */
             $extractedTime = array();
             $extractedTime = self::extractMSFromString($orgDateString);
@@ -409,11 +424,28 @@ class Date
      * Converts this date to the requested string format. See {@link http://php.net/date}
      * for the list of format strings.
      *
+     * [Thangnt 2016-10-27] Need to consider this change really carefully.
+     * Beside of implementing a special case for Hour, the $format argument
+     * when input from the caller must be accepted.
+     * 
+     * [2016-10-28] @TODO if this works OK change the toString() of Period as well.
+     * 
      * @param string $format
      * @return string
      */
-    public function toString($format = 'Y-m-d')
+//    public function toString($format = 'Y-m-d')
+//    {
+//        return date($format, $this->getTimestamp());
+//    }
+    public function toString($format = null)
     {
+        if ($this->isValidForHour && $format === null) {
+            return date('Y-m-d H:i:s', $this->getTimestamp());
+        } 
+        
+        if ($format === null) {
+            $format = 'Y-m-d';
+        }
         return date($format, $this->getTimestamp());
     }
 
@@ -1034,6 +1066,7 @@ class Date
         return $secs / self::NUM_SECONDS_IN_DAY;
     }
 
+    //[Thangnt 2016-11-07] This function generate the exception
     private static function getInvalidDateFormatException($dateString)
     {
         $message = Piwik::translate('General_ExceptionInvalidDateFormat', array("YYYY-MM-DD, or 'today' or 'yesterday'", "strtotime", "http://php.net/strtotime"));

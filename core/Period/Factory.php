@@ -12,6 +12,8 @@ use Exception;
 use Piwik\Date;
 use Piwik\Period;
 use Piwik\Piwik;
+use Piwik\Log;
+
 
 class Factory
 {
@@ -28,8 +30,14 @@ class Factory
      */
     public static function build($period, $date, $timezone = 'UTC')
     {
+        // This is why the enabled_periods_UI and API need to be set for hour in config.ini 
         self::checkPeriodIsEnabled($period);
 
+        //[Thangnt 2016-10-27] Check period build from ArchiveInvalidator
+//        echo "From Period Factory: ";
+//        $multi = Period::isMultiplePeriod($date, $period);
+//        echo " The input date range string is $date and is multi period?: $multi \n***\n";
+        
         if (is_string($date)) {
             if (Period::isMultiplePeriod($date, $period)
                 || $period == 'range') {
@@ -56,7 +64,7 @@ class Factory
                 break;
 
             /**
-             * [Thang 2016-09-09]
+             * [Thangnt 2016-09-09]
              */
             case 'hour':
                 return new Hour($date);

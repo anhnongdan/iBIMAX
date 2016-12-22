@@ -44,7 +44,7 @@ class Loader
     public function __construct(Parameters $params)
     {
 	$period = $params->getPeriod();
-//	Log::Debug("ArchiveProcessor/Loader:construct period:%s start:%s", $period->getLabel(), $period->getDateStart()->getDatetime());
+	Log::Debug("ArchiveProcessor/Loader:construct period:%s start:%s", $period->getLabel(), $period->getDateStart()->getDatetime());
         $this->params = $params;
     }
 
@@ -184,6 +184,10 @@ class Loader
     }
 
     /**
+     * [Thangnt 2016-11-11]
+     * @TODO: Review this function again, the problem with archiving hours before 8 am
+     * is actually problem of VisitTime plugin.
+     * 
      * Returns the minimum archive processed datetime to look at. Only public for tests.
      *
      * @return int|bool  Datetime timestamp, or false if must look at any archive available

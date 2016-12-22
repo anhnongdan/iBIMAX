@@ -13,6 +13,12 @@ use Piwik\Common;
 use Piwik\Date;
 use Piwik\DbHelper;
 
+/**
+ * [Thangnt 2016-10-27] Continue to refactor this class to support 
+ * prefix and name processing for temporary archive tables.
+ */
+
+
 class ArchiveTableCreator
 {
     const NUMERIC_TABLE = "numeric";
@@ -40,17 +46,21 @@ class ArchiveTableCreator
          * !!!Make sure that the delimiters are all underscore "_"
          */
         if($date->isValidForHour()) {
-            $tableNamePrefix = "archive_temp_".$type;
+            // [Thangnt 2016-10-27] Change temp table name
+            $tableNamePrefix = "archive_".$type."_temp";
             $tableName = $tableNamePrefix . "_" .self::getTableTempDateFromHour($date);
             //this func. just addes the prefix of table set on config.ini
             $tableName = Common::prefixTable($tableName);
+            
+            //echo "From getTable in ArchiveTableCreator: tableName is $tableName\n\n";
+            
         } else {
             $tableNamePrefix = "archive_" . $type;
             $tableName = $tableNamePrefix . "_" . self::getTableMonthFromDate($date);
             $tableName = Common::prefixTable($tableName);
         }
 
-        //create Table method should be the same for Hour and other period
+        // @Thangnt: create Table method should be the same for Hour and other period
         self::createArchiveTablesIfAbsent($tableName, $tableNamePrefix);
 
         return $tableName;
@@ -63,6 +73,8 @@ class ArchiveTableCreator
         }
 
         if (!in_array($tableName, self::$tablesAlreadyInstalled)) {
+            
+            // @Thangnt 2016-09-27: This should accept $tableNamePrefix as temp_archive...
             self::getModel()->createArchiveTable($tableName, $tableNamePrefix);
             self::$tablesAlreadyInstalled[] = $tableName;
         }
@@ -84,6 +96,11 @@ class ArchiveTableCreator
     }
 
     /**
+     * [Thangnt 2016-10-27] I think this function should return all archive and 
+     * temp_archive tables, how the returned array of table names is used depends
+     * on the caller. 
+     * *Confirm if this is true
+     * 
      * Returns all table names archive_*
      *
      * @param string $type The type of table to return. Either `self::NUMERIC_TABLE` or `self::BLOB_TABLE`.
@@ -110,11 +127,23 @@ class ArchiveTableCreator
         return $archiveTables;
     }
 
+    /**
+     * [Thangnt 2016-10-27] This returns the date (Y-m-d) 
+     * for temp tables as well
+     * 
+     * @param type $tableName
+     * @return type
+     */
     public static function getDateFromTableName($tableName)
     {
         $tableName = Common::unprefixTable($tableName);
-        $date      = str_replace(array('archive_numeric_', 'archive_blob_'), '', $tableName);
-
+          
+        //original
+        //$date = str_replace(array('archive_numeric_', 'archive_blob_'), '', $tableName);
+  
+        //Thangnt
+        $date =  str_replace(array('archive_numeric_temp_', 'archive_blob_temp_', 'archive_numeric_', 'archive_blob_'), '', $tableName);
+        
         return $date;
     }
 
@@ -123,6 +152,12 @@ class ArchiveTableCreator
         return $date->toString('Y_m');
     }
 
+    /**
+     * [Thangnt 2016-10-17]
+     * 
+     * @param Date $hour
+     * @return type
+     */
     public static function getTableTempDateFromHour(Date $hour)
     {
         //calling function should check for the validity of $hour
@@ -130,13 +165,22 @@ class ArchiveTableCreator
         return $hour->toString('Y_m_d');
     }
 
+    /**
+     * [Thangnt 2016-10-17]
+     * Them temp tableName condition may be just 'overdone' leave there anyway.
+     * 
+     * @param type $tableName
+     * @return boolean
+     */
     public static function getTypeFromTableName($tableName)
     {
-        if (strpos($tableName, 'archive_numeric_') !== false) {
+        if (strpos($tableName, 'archive_numeric_') !== false ||
+               strpos($tableName, 'archive_numeric_temp') !== false ) {
             return self::NUMERIC_TABLE;
         }
 
-        if (strpos($tableName, 'archive_blob_') !== false) {
+        if (strpos($tableName, 'archive_blob_') !== false ||
+                strpos($tableName, 'archive_blob_temp') !== false) {
             return self::BLOB_TABLE;
         }
 

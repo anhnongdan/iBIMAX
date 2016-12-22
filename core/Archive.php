@@ -215,6 +215,9 @@ class Archive
             $timezone = Site::getTimezoneFor($websiteIds[0]);
         }
 
+        $logger = StaticContainer::get('Psr\Log\LoggerInterface');
+        $logger->debug("From build() of Archive: the date takes in: $strDate");
+        
         if (Period::isMultiplePeriod($strDate, $period)) {
             $oPeriod    = PeriodFactory::build($period, $strDate, $timezone);
             $allPeriods = $oPeriod->getSubperiods();
@@ -809,6 +812,7 @@ class Archive
 //                echo "*****\n\n";
 
                 //till here, the period still retain Hour attr.
+                Log::DEBUG("[Thangnt 2016-11-04] the periods: {$period->getLabel()}, {$period->getPrettyString()}");
                 $this->prepareArchive($archiveGroups, $site, $period);
             }
         }

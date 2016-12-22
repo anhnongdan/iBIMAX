@@ -86,11 +86,13 @@ abstract class Period
      */
     public static function isMultiplePeriod($dateString, $period)
     {
-        //[2016-09-20]
+        //[Thangnt 2016-09-20]
         // if dateString is 2 date, ofcourse, it's multiple periods for Hour
         // if dateString is 1 date without H:i:s, it means the whole day and true too.
 
         if ($period == 'hour') {
+//            echo "From isMultiplePeriod in Period: the period is hour \n and parsing should be fine $dateString\n";
+            
             //make sure this will always be boolean =)))
             return Range::parseHourRange($dateString)&&true;
         }
@@ -240,6 +242,9 @@ abstract class Period
     }
 
     /**
+     * [Thangnt 2016-10-27] 
+     * @TODO: this function should accept input format for hour
+     * 
      * Returns a list of strings representing the current period.
      *
      * @param string $format The format of each individual day.

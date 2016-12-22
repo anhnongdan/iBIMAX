@@ -29,6 +29,11 @@ use Piwik\Plugins\UsersManager\UserPreferences;
 use Psr\Log\LoggerInterface;
 
 /**
+ * [Thangnt 2016-10-28]
+ * 9:57 This still doesn't support hour archive, --force-periods=hour will trigger
+ * day archive.
+ * 
+ * 
  * ./console core:archive runs as a cron and is a useful tool for general maintenance,
  * and pre-process reports for a Fast dashboard rendering.
  */
@@ -353,7 +358,7 @@ class CronArchive
 
         $this->logSection("START");
         $this->logger->info("Starting Piwik reports archiving...");
-
+        
         do {
             $idSite = $this->websites->getNextSiteId();
 
@@ -378,6 +383,11 @@ class CronArchive
             $hasWebsiteDayFinishedSinceLastRun = in_array($idSite, $this->websiteDayHasFinishedSinceLastRun);
             $isOldReportInvalidatedForWebsite  = $this->isOldReportInvalidatedForWebsite($idSite);
 
+            $a = $shouldCheckIfArchivingIsNeeded ? 'true':'false';
+            $b = $hasWebsiteDayFinishedSinceLastRun ? 'true':'false';
+            $c = $isOldReportInvalidatedForWebsite ? 'true' : 'false';
+            $this->logger->info("After checking if archiving is needed for site $idSite,shouldCheckIfArchivingIsNeeded: $a,hasWebsiteDayFinishedSinceLastRun: $b,isOldReportInvalidatedForWebsite: $c.");
+            
             if ($shouldCheckIfArchivingIsNeeded) {
                 // if not specific sites and not all websites should be archived, we check whether we actually have
                 // to process the archives for this website (only if there were visits since midnight)
@@ -411,6 +421,7 @@ class CronArchive
              */
             Piwik::postEvent('CronArchive.archiveSingleSite.start', array($idSite));
 
+            $this->logger->info("Calculate archiveSingleSite for idSite $idSite.");
             $completed = $this->archiveSingleSite($idSite, $requestsBefore);
 
             /**
@@ -550,6 +561,12 @@ class CronArchive
 
             Option::clearCachedOption($this->lastRunKey($idSite, "day"));
             $lastTimestampWebsiteProcessedDay = $this->getDayLastProcessedTimestamp($idSite);
+            
+            /**
+             * [Thangnt 2016-11-08] Hour periods need the same last run keys as Days
+             */
+            Option::clearCachedOption($this->lastRunKey($idSite, "hour"));
+            $lastTimestampWebsiteProcessedHour = $this->getHourLastProcessedTimestamp($idSite);
         }
 
         $this->updateIdSitesInvalidatedOldReports();
@@ -625,6 +642,12 @@ class CronArchive
          * Trigger archiving for days
          */
         try {
+            /**
+             * [Thangnt 2016-11-09]
+             * Archive Hour will be process with Day. 
+             */
+            $shouldProceed = $this->processArchiveHours($idSite, $lastTimestampWebsiteProcessedHour, $shouldArchivePeriods, $timerWebsite);
+                    
             $shouldProceed = $this->processArchiveDays($idSite, $lastTimestampWebsiteProcessedDay, $shouldArchivePeriods, $timerWebsite);
         } catch (UnexpectedWebsiteFoundException $e) {
             // this website was deleted in the meantime
@@ -745,6 +768,7 @@ class CronArchive
     }
 
     /**
+     * 
      * @param $idSite
      * @param $lastTimestampWebsiteProcessedDay
      * @param $shouldArchivePeriods
@@ -753,7 +777,8 @@ class CronArchive
      */
     protected function processArchiveDays($idSite, $lastTimestampWebsiteProcessedDay, $shouldArchivePeriods, Timer $timerWebsite)
     {
-        if (!$this->shouldProcessPeriod("day")) {
+        $this->logger->info("Archiving process entered processArchiveDays step.");
+        if (!$this->shouldProcessPeriod("day")) {            
             // skip day archiving and proceed to period processing
             return true;
         }
@@ -788,6 +813,8 @@ class CronArchive
 
         $this->logArchiveWebsite($idSite, "day", $date);
 
+        //[Thangnt 2016-11-09] 
+        $this->logger->info("CronArchive built url to calculate day archive: $url");
         $content = $this->request($url);
         $daysResponse = @unserialize($content);
 
@@ -846,6 +873,115 @@ class CronArchive
         return true;
     }
 
+    /**
+     * [Thangnt 2016-11-09]
+     * Dedicated archive processing function for hours,
+     * all the logic is borrowed from @link{processArchiveDays()}.
+     * 
+     * @param type $idSite
+     * @param type $lastTimestampWebsiteProcessedDay
+     * @param type $shouldArchivePeriods
+     * @param \Piwik\Timer $timerWebsite
+     * @return boolean
+     */
+    protected function processArchiveHours($idSite, $lastTimestampWebsiteProcessedHour, $shouldArchivePeriods, Timer $timerWebsite)
+    {
+        $this->logger->info("Archiving process entered processArchiveHours step.");
+        if (!$this->shouldProcessPeriod("hour")) {
+            // skip day archiving and proceed to period processing
+            return true;
+        }
+
+        $timer = new Timer();
+
+        // Fake that the request is already done, so that other core:archive commands
+        // running do not grab the same website from the queue
+        Option::set($this->lastRunKey($idSite, "hour"), time());
+
+        // Remove this website from the list of websites to be invalidated
+        // since it's now just about to being re-processed, makes sure another running cron archiving process
+        // does not archive the same idSite
+        $websiteInvalidatedShouldReprocess = $this->isOldReportInvalidatedForWebsite($idSite);
+        if ($websiteInvalidatedShouldReprocess) {
+            $store = new SitesToReprocessDistributedList();
+            $store->remove($idSite);
+        }
+
+        // when some data was purged from this website
+        // we make sure we query all previous days/weeks/months
+        $processHoursSince = $lastTimestampWebsiteProcessedHour;
+        if ($websiteInvalidatedShouldReprocess
+            // when --force-all-websites option,
+            // also forces to archive last52 days to be safe
+            || $this->shouldArchiveAllSites) {
+            $processDaysSince = false;
+        }
+
+        $date = $this->getApiDateParameter($idSite, "hour", $processHoursSince);
+        $url = $this->getVisitsRequestUrl($idSite, "hour", $date);
+
+        $this->logArchiveWebsite($idSite, "hour", $date);
+
+        //[Thangnt 2016-11-09] 
+        $this->logger->info("CronArchive built url to calculate HOUR archive: $url");
+        $content = $this->request($url);
+        $daysResponse = @unserialize($content);
+
+        if (empty($content)
+            || !is_array($daysResponse)
+            || count($daysResponse) == 0
+        ) {
+            // cancel the successful run flag
+            Option::set($this->lastRunKey($idSite, "hour"), 0);
+
+            // cancel marking the site as reprocessed
+            if ($websiteInvalidatedShouldReprocess) {
+                $store = new SitesToReprocessDistributedList();
+                $store->add($idSite);
+            }
+
+            $this->logError("Empty or invalid response '$content' for website id $idSite, " . $timerWebsite->__toString() . ", skipping");
+            $this->skippedDayOnApiError++;
+            $this->skipped++;
+            return false;
+        }
+
+        $visitsToday = $this->getVisitsLastPeriodFromApiResponse($daysResponse);
+        $visitsLastDays = $this->getVisitsFromApiResponse($daysResponse);
+
+        $this->requests++;
+        $this->processed++;
+
+        // If there is no visit today and we don't need to process this website, we can skip remaining archives
+        if (
+            0 == $visitsToday
+            && !$shouldArchivePeriods
+        ) {
+            $this->logger->info("Skipped website id $idSite, no visit last hour, " . $timerWebsite->__toString());
+            $this->skippedDayNoRecentData++;
+            $this->skipped++;
+            return false;
+        }
+
+        if (0 == $visitsLastDays
+            && !$shouldArchivePeriods
+            && $this->shouldArchiveAllSites
+        ) {
+            $humanReadableDate = $this->formatReadableDateRange($date);
+            $this->logger->info("Skipped website id $idSite, no visits in the $humanReadableDate hours, " . $timerWebsite->__toString());
+            $this->skippedPeriodsNoDataInPeriod++;
+            $this->skipped++;
+            return false;
+        }
+
+        $this->visitsToday += $visitsToday;
+        $this->websitesWithVisitsSinceLastRun++;
+
+        $this->archiveReportsFor($idSite, "hour", $this->getApiDateParameter($idSite, "hour", $processDaysSince), $archiveSegments = true, $timer, $visitsToday, $visitsLastDays);
+
+        return true;
+    }
+    
     /**
      * @param $idSite
      * @return array
@@ -1174,7 +1310,12 @@ class CronArchive
 
         $secondsSinceMidnight = $nowInTimezone->getTimestamp() - $midnightInTimezone->getTimestamp();
 
+        // [Thangnt 2016-10-27] It seems that even if the archive tables are deleted,
+        // the last archive is preserved
+        // This function calls to Option::get to get a persisted value of the last 
+        // finished archive time.
         $secondsSinceLastArchive = $this->getSecondsSinceLastArchive();
+        
         if ($secondsSinceLastArchive < $secondsSinceMidnight) {
             $secondsBackToLookForVisits = $secondsSinceLastArchive;
             $sinceInfo = "(since the last successful archiving)";
@@ -1421,18 +1562,29 @@ class CronArchive
      */
     private function getPeriodsToProcess()
     {
+        //Thangnt no init for restrictToPeriods to this point, so 
+        // restrictToPeriods is just a null array at the moment. (??)
+        $str = implode(", ",$this->restrictToPeriods);
+        $this->logger->info("CronArchive::getPeriodsToProcess() restrictToPeriods before init: $str");
         $this->restrictToPeriods = array_intersect($this->restrictToPeriods, $this->getDefaultPeriodsToProcess());
+        //Thangnt: get enabled API from config file
+         $str = implode(", ",$this->restrictToPeriods);
+        $this->logger->info("CronArchive::getPeriodsToProcess() restrictToPeriods after ini: $str");
         $this->restrictToPeriods = array_intersect($this->restrictToPeriods, PeriodFactory::getPeriodsEnabledForAPI());
 
         return $this->restrictToPeriods;
     }
 
     /**
+     * [Thangnt 2016-10-28]
+     * Add hour to the default periods to process, without this 
+     * --force-periods=hour will trigger day archive
+     * 
      * @return array
      */
     private function getDefaultPeriodsToProcess()
     {
-        return array('day', 'week', 'month', 'year', 'range');
+        return array('hour', 'day', 'week', 'month', 'year', 'range');
     }
 
     /**
@@ -1546,6 +1698,18 @@ class CronArchive
         return $this->sanitiseTimestamp($timestamp);
     }
 
+    /**
+     * [Thangnt 2016-11-08] Try out
+     * 
+     * @param $idSite
+     * @return false|string
+     */
+    private function getHourLastProcessedTimestamp($idSite)
+    {
+        $timestamp = Option::get($this->lastRunKey($idSite, "hour"));
+        return $this->sanitiseTimestamp($timestamp);
+    }
+        
     /**
      * @return false|string
      */

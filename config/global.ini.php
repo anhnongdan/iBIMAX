@@ -158,8 +158,8 @@ enable_processing_unique_visitors_multiple_sites = 0
 ; The list of periods that are available in the Piwik calendar
 ; Example use case: custom date range requests are processed in real time,
 ; so they may take a few minutes on very high traffic website: you may remove "range" below to disable this period
-enabled_periods_UI = "hour,day,week,month,year,range"
-enabled_periods_API = "hour,day,week,month,year,range"
+enabled_periods_UI = "day,week,month,year,range"
+enabled_periods_API = "day,week,month,year,range"
 
 ; New parameter for 2.12.7 version.
  multi_server_environment=0
@@ -568,14 +568,9 @@ absolute_chroot_path =
 ; This may for example be useful when doing Mysql AWS replication
 enable_load_data_infile = 1
 
-; By setting this option to 0, you can disable the Piwik marketplace. This is useful to prevent giving the Super user
-; the access to disk and install custom PHP code (Piwik plugins).
-enable_marketplace = 1
-
 ; By setting this option to 0:
 ; - links to Enable/Disable/Uninstall plugins will be hidden and disabled
 ; - links to Uninstall themes will be disabled (but user can still enable/disable themes)
-; - as well as disabling plugins admin actions (such as "Upload new plugin"), setting this to 1 will have same effect as setting enable_marketplace=1
 enable_plugins_admin = 1
 
 ; By setting this option to 0, you can prevent Super User from editing the Geolocation settings.
