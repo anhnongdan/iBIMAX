@@ -352,6 +352,10 @@ class LogAggregator
 
         $query = $this->generateQuery($select, $from, $where, $groupBy, $orderBy);
 
+        /**
+         * [Thangnt 2016-12-22] Pivot for DB query generating 
+         */
+        
         if ($rankingQuery) {
             unset($availableMetrics[Metrics::INDEX_MAX_ACTIONS]);
             $sumColumns = array_keys($availableMetrics);

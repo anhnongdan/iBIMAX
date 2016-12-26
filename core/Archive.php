@@ -812,7 +812,7 @@ class Archive
 //                echo "*****\n\n";
 
                 //till here, the period still retain Hour attr.
-                Log::DEBUG("[Thangnt 2016-11-04] the periods: {$period->getLabel()}, {$period->getPrettyString()}");
+                Log::DEBUG("[Thangnt 2016-11-04] the periods (CoreArchive accepted hour period): {$period->getLabel()}, {$period->getPrettyString()}");
                 $this->prepareArchive($archiveGroups, $site, $period);
             }
         }

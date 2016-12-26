@@ -127,17 +127,30 @@ class PluginsArchiver
                     
                     /**
                      * [Thangnt 2016-11-07] 
+                     * 
+                     * [Thangnt 2016-12-24]
+                     * Actually VisitTime is calculated just fine with custom period 'hour'.
+                     * Each metric of VisitTime is also linearly accumulated over the sub-periods. 
                      */
                     if ($this->isSingleSiteDayArchive) {
+                        
                         if ($pluginName === 'VisitTime') {
                             Log::debug("PluginsArchiver::%s: Archiving hourly data is skipped for plugin '%s'.", __FUNCTION__, $pluginName);
                         } else {
                             Log::debug("PluginsArchiver::%s: Archiving day (actually hour) reports for plugin '%s'.", __FUNCTION__, $pluginName);
                             $archiver->aggregateDayReport();
-                        }
+                        } 
+                        
+//                        Log::debug("PluginsArchiver::%s: Archiving day (actually hour) reports for plugin '%s'.", __FUNCTION__, $pluginName);
+//                        $archiver->aggregateDayReport();              
+                        
                     } else {
                         Log::debug("PluginsArchiver::%s: Archiving period reports for plugin '%s'.", __FUNCTION__, $pluginName);
 
+                        if ($pluginName === 'VisitTime') {
+                            Log::debug("PluginsArchiver::%s: Archiving day reports for plugin '%s' before aggregate Multiple Reports.", __FUNCTION__, $pluginName);
+                            $archiver->aggregateDayReport();
+                        }
                         $archiver->aggregateMultipleReports();
                     }
 
