@@ -129,7 +129,10 @@ class LogAggregator
 
     /** @var \Piwik\Date */
     protected $dateEnd;
-    protected $period;
+    
+    //[Thangnt 2016-11-06] Return to use the boolean var $period_hour
+    //a Period object here is unecessary and memory consuming
+    //protected $period;
 
     /** @var int[] */
     protected $sites;
