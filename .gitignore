@@ -2,6 +2,7 @@
 /nginx/
 /tests/
 /bimax_anallytics/%*
+/piwik/
 
 php_errors.log
 *.tmp
