@@ -133,6 +133,12 @@ enabled = 0
 disable_merged_assets = 0
 
 [General]
+; [Bimax custom value]
+; default value for atomic archive period
+; Without this, archive can't be done correctly.
+time_limit = 600
+my_period = 600
+my_nperiod_back = 2
 
 ; the following settings control whether Unique Visitors `nb_uniq_visitors` and Unique users `nb_users` will be processed for different period types.
 ; year and range periods are disabled by default, to ensure optimal performance for high traffic Piwik instances
@@ -152,8 +158,11 @@ enable_processing_unique_visitors_multiple_sites = 0
 ; The list of periods that are available in the Piwik calendar
 ; Example use case: custom date range requests are processed in real time,
 ; so they may take a few minutes on very high traffic website: you may remove "range" below to disable this period
-enabled_periods_UI = "day,week,month,year,range"
-enabled_periods_API = "day,week,month,year,range"
+enabled_periods_UI = "hour,day,week,month,year,range"
+enabled_periods_API = "hour,day,week,month,year,range"
+
+; New parameter for 2.12.7 version.
+ multi_server_environment=0
 
 ; whether to enable subquery cache for Custom Segment archiving queries
 enable_segments_subquery_cache = 0
@@ -311,6 +320,33 @@ minimum_memory_limit = 128
 ; Minimum memory limit enforced when archived via ./console core:archive
 ; Set to "-1" to always use the configured memory_limit value in php.ini file.
 minimum_memory_limit_when_archiving = 768
+
+
+; List of proxy headers for client IP addresses
+;
+; CloudFlare (CF-Connecting-IP)
+;proxy_client_headers[] = HTTP_CF_CONNECTING_IP
+;
+; ISP proxy (Client-IP)
+;proxy_client_headers[] = HTTP_CLIENT_IP
+;
+; de facto standard (X-Forwarded-For)
+;proxy_client_headers[] = HTTP_X_FORWARDED_FOR
+
+; List of proxy headers for host IP addresses
+;
+; de facto standard (X-Forwarded-Host)
+;proxy_host_headers[] = HTTP_X_FORWARDED_HOST
+
+; List of proxy IP addresses (or IP address ranges) to skip (if present in the above headers).
+; Generally, only required if there's more than one proxy between the visitor and the backend web server.
+;
+; Examples:
+;proxy_ips[] = 204.93.240.*
+;proxy_ips[] = 204.93.177.0/24
+;proxy_ips[] = 199.27.128.0/21
+;proxy_ips[] = 173.245.48.0/20
+
 
 ; Piwik will check that usernames and password have a minimum length, and will check that characters are "allowed"
 ; This can be disabled, if for example you wish to import an existing User database in Piwik and your rules are less restrictive
@@ -532,9 +568,14 @@ absolute_chroot_path =
 ; This may for example be useful when doing Mysql AWS replication
 enable_load_data_infile = 1
 
+; By setting this option to 0, you can disable the Piwik marketplace. This is useful to prevent giving the Super user
+; the access to disk and install custom PHP code (Piwik plugins).
+enable_marketplace = 1
+
 ; By setting this option to 0:
 ; - links to Enable/Disable/Uninstall plugins will be hidden and disabled
 ; - links to Uninstall themes will be disabled (but user can still enable/disable themes)
+; - as well as disabling plugins admin actions (such as "Upload new plugin"), setting this to 1 will have same effect as setting enable_marketplace=1
 enable_plugins_admin = 1
 
 ; By setting this option to 0, you can prevent Super User from editing the Geolocation settings.
