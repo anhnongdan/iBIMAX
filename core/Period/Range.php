@@ -304,6 +304,9 @@ class Range extends Period
      * 2016-10-27: This function doesn't take in string with spaces after comma ','
      *              and 1 digit hour without 0 (01 vs 1)
      * 
+     * [Thangnt 2016-12-28]
+     * This function is ok for custom hour period, just return start and end of the Range
+     * 
      * @param string $dateString what ever satisfy the
      * @return mixed  array(1 => dateStartString, 2 => dateEndString) or `false` if the input was not a date range.
      */
@@ -429,6 +432,11 @@ class Range extends Period
     }
 
     /**
+     * [Thangnt 2016-12-28]
+     * Problem is here, addPeriod method of Hour period shift the period by 1 hour.
+     * Wow, this is magic!!! 
+     * => Fixed in Date.php
+     * 
      * Adds new subperiods
      *
      * @param Date $startDate

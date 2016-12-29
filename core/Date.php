@@ -1000,6 +1000,9 @@ class Date
     }
 
     /**
+     * [Thangnt 2016-12-28]
+     * Modified to construct hour-subperiod correctly
+     * 
      * Adds a period to `$this` date and returns the result in a new Date instance.
      *
      * @param int $n The number of periods to add. Can be negative.
@@ -1008,7 +1011,10 @@ class Date
      */
     public function addPeriod($n, $period)
     {
-        if (strtolower($period) == 'month') { // TODO: comments
+        // [Thangnt 2016-12-28] This solve problem of getting non-exist day in moth
+        // Piwik chooses the solution: 31-Jan + 1month = 28-Feb (rather than 03-Mar)
+        // and 31-Jan + 2months = 31-Mar.
+        if (strtolower($period) == 'month') {
             $dateInfo = getdate($this->timestamp);
 
             $ts = mktime(
@@ -1023,8 +1029,19 @@ class Date
             $daysToAdd = min($dateInfo['mday'], self::getMaxDaysInMonth($ts)) - 1;
             $ts += self::NUM_SECONDS_IN_DAY * $daysToAdd;
         } else {
+            
+            /**
+             * [Thangnt] 
+             * Get myPeriod and apply addPeriod calculation
+             */
+            if (strtolower($period) == 'hour') {
+                $myPeriod = Config::getInstance()->General['my_period'];
+                $period = 'second';
+                $n = $n*$myPeriod;
+            }
+            
             $time = $n < 0 ? "$n $period" : "+$n $period";
-
+            //php's strtotime's nature: accept offset 'minute', 'hour', 'day', 'week', etc. 
             $ts = strtotime($time, $this->timestamp);
         }
 

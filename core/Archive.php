@@ -583,6 +583,15 @@ class Archive
      */
     protected function get($archiveNames, $archiveDataType, $idSubtable = null)
     {
+        //Thangnt every archive data request needs to run through here
+        //$logger = StaticContainer::get('Psr\Log\LoggerInterface');
+        if (is_array($archiveNames)) {
+            $aNs = implode(", ", $archiveNames);
+        } else {
+            $aNs = $archiveNames;
+        }
+        Log::debug("CoreArchive get data for: %s, %s, %s", $this->params->getIdSites(), $aNs, $archiveDataType);
+        
         if (!is_array($archiveNames)) {
             $archiveNames = array($archiveNames);
         }

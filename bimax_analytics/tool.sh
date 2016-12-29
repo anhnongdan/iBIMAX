@@ -1,6 +1,6 @@
 #!/bin/sh
-log=/home/tony/bimax_docker/pw1/www/bimax_analytics/tmp/archive.log
-console=/home/tony/bimax_docker/pw1/www/console
+log=/home/tony/bimax_docker/pw1/_1www/bimax_analytics/tmp/archive.log
+console=/home/tony/bimax_docker/pw1/_1www/console
 mysql="mysql -N -u tony -h localhost  -ptatthang piwik"
 help(){
 	echo "Please use the below fucntions: ";
@@ -97,8 +97,7 @@ clean(){
         db_clean
 	pw_site_delall
  	pw_site_reset
-        re_clean
-	mysql piwik < /Users/ThangNguyen/www/piwikDev/log_importing/piwik_site.sql
+	$mysql < /home/tony/bimax_docker/pw1/_1www/bimax_analytics/piwik_site.sql
 }
 queue(){
         $console queuedtracking:$@

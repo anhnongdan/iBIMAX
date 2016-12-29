@@ -780,6 +780,7 @@ class CronArchive
         $this->logger->info("Archiving process entered processArchiveDays step.");
         if (!$this->shouldProcessPeriod("day")) {            
             // skip day archiving and proceed to period processing
+            $this->logger->info("Skip archive day as 'hour' is forced.");
             return true;
         }
 
@@ -879,7 +880,7 @@ class CronArchive
      * all the logic is borrowed from @link{processArchiveDays()}.
      * 
      * @param type $idSite
-     * @param type $lastTimestampWebsiteProcessedDay
+     * @param type $lastTimestampWebsiteProcessedHour
      * @param type $shouldArchivePeriods
      * @param \Piwik\Timer $timerWebsite
      * @return boolean
@@ -923,7 +924,7 @@ class CronArchive
         $this->logArchiveWebsite($idSite, "hour", $date);
 
         //[Thangnt 2016-11-09] 
-        $this->logger->info("CronArchive built url to calculate HOUR archive: $url");
+        $this->logger->debug("CronArchive built url to calculate HOUR archive: $url");
         $content = $this->request($url);
         $daysResponse = @unserialize($content);
 
@@ -1034,8 +1035,13 @@ class CronArchive
         $urls = array();
 
         $noSegmentUrl = $url;
+        /*
+         * [Thangnt 2016-12-27]
+         * Exclude hour as well
+         */
+        
         // already processed above for "day"
-        if ($period != "day") {
+        if ($period != "day" && $period != "hour") {
             $urls[] = $url;
             $this->logArchiveWebsite($idSite, $period, $date);
         }
@@ -1508,6 +1514,10 @@ class CronArchive
      */
     private function getApiDateParameter($idSite, $period, $lastTimestampWebsiteProcessed = false)
     {
+        // This returns the date range input via --forced-date-range
+        // otherwise, automatically calculate date range and return 
+        // the appropriate date range to calculate.
+        
         $dateRangeForced = $this->getDateRangeToProcess();
 
         if (!empty($dateRangeForced)) {

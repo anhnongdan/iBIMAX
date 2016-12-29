@@ -1,12 +1,12 @@
 /core_2.16.5/
-/bimax_anallytics/%*
+/bimax_anallytics/%**
 /piwik/
 
 php_errors.log
 *.tmp
 *.pyc
 .DS_Store
-/*.log
+*.log
 /.idea/
 /bootstrap.php
 /build
