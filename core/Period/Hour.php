@@ -91,6 +91,8 @@ class Hour extends Period
    
         $start = $this->getDateStart();
         //\Piwik\Log::debug("Hour::%s dateStart: %s and toEnd = %s", __FUNCTION__, $start->toString("Y-m-d H:i:s"), $toEnd);
+        //$end = $start->subSeconds($toEnd);
+        //\Piwik\Log::debug("In Hour getDateEnd: dateEnd: %s, %s, %s", $end->isValidForHour(), $end->toString(), $end->toString("Y-m-d")); 
         return $start->subSeconds($toEnd);
         //return $start->subHour(-1)->subSeconds(1);
     }

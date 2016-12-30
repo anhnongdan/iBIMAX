@@ -95,24 +95,32 @@ class Date
     private $isValidForHour = false;
 
     /**
+     * [Thangnt 2016-12-30]
+     * Refactor this function to create new Hour compatible Date object,
+     * this help when Date is created from Date->subDay(), Date->subSecond(), etc.
+     * 
      * Constructor.
      *
      * @param int $timestamp The number in seconds since the unix epoch.
      * @param string $timezone The timezone of the datetime.
      * @throws Exception If $timestamp is not an int.
      */
-    protected function __construct($timestamp, $timezone = 'UTC')
+    protected function __construct($timestamp, $timezone = 'UTC', $isHour=false)
     {
         if (!is_int($timestamp)) {
             throw new Exception("Date is expecting a unix timestamp, got: '$timestamp'.");
         }
         $this->timezone = $timezone;
         $this->timestamp = $timestamp;
+        
+        if($isHour){
+            $this->isValidForHour = true;
+        }
     }
 
     /**
      * [Thangnt 2016-11-16] 
-     * All Dates created throw this factory are in UTC no matter what timezone input.
+     * All Dates created throw this factory are in UTC no matter what timezone input (convert to UTC).
      * 
      * Creates a new Date instance using a string datetime value. The timezone of the Date
      * result will be in UTC.
@@ -996,7 +1004,7 @@ class Date
      */
     public function subSeconds($n)
     {
-        return new Date($this->timestamp - $n, $this->timezone);
+        return new Date($this->timestamp - $n, $this->timezone, $this->isValidForHour);
     }
 
     /**

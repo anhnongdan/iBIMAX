@@ -617,8 +617,13 @@ class Archive
         $archiveIds = $this->getArchiveIds($archiveNames);
 
         if (empty($archiveIds)) {
+            Log::debug("CoreArchive got empty data, no archiveId found");
             return $result;
-        }
+        } 
+        
+//        $archiveIds_borrow = $archiveIds;
+//        $ids = print_r( $archiveIds_borrow );
+//        Log::debug("CoreArchive got archive with ids: $ids");
 
         $archiveData = ArchiveSelector::getArchiveData($archiveIds, $archiveNames, $archiveDataType, $idSubtable);
 
@@ -653,6 +658,13 @@ class Archive
     {
         $plugins = $this->getRequestedPlugins($archiveNames);
 
+        if (is_array($plugins)) {
+            $aNs = implode(", ", $plugins);
+        } else {
+            $aNs = $plugins;
+        }
+        Log::debug("CoreArchive get archiveids for: %s", $aNs);
+        
         // figure out which archives haven't been processed (if an archive has been processed,
         // then we have the archive IDs in $this->idarchives)
         $doneFlags     = array();
@@ -670,6 +682,8 @@ class Archive
                 $archiveGroups[] = $archiveGroup;
             }
 
+            Log::debug("CoreArchive get doneFlag: %s", $doneFlag);
+            
             $globalDoneFlag = Rules::getDoneFlagArchiveContainsAllPlugins($this->params->getSegment());
             if ($globalDoneFlag !== $doneFlag) {
                 $doneFlags[$globalDoneFlag] = true;
@@ -683,6 +697,7 @@ class Archive
             if (!Rules::isArchivingDisabledFor($this->params->getIdSites(), $this->params->getSegment(), $this->getPeriodLabel())) {
                 $this->cacheArchiveIdsAfterLaunching($archiveGroups, $plugins);
             } else {
+                 Log::debug("CoreArchive: archiving is disabled");
                 $this->cacheArchiveIdsWithoutLaunching($plugins);
             }
         }
@@ -1032,6 +1047,7 @@ class Archive
 
             foreach ($this->idarchives[$doneFlag] as $dateRange => $idarchives) {
                 foreach ($idarchives as $id) {
+                    //Log::debug("CoreArchive-%s: get %s in %s", __FUNCTION__, $id, $dateRange);
                     $idArchivesByMonth[$dateRange][] = $id;
                 }
             }

@@ -158,8 +158,8 @@ enable_processing_unique_visitors_multiple_sites = 0
 ; The list of periods that are available in the Piwik calendar
 ; Example use case: custom date range requests are processed in real time,
 ; so they may take a few minutes on very high traffic website: you may remove "range" below to disable this period
-enabled_periods_UI = "hour, day,week,month,year,range"
-enabled_periods_API = "hour, day,week,month,year,range"
+enabled_periods_UI = "hour,day,week,month,year,range"
+enabled_periods_API = "hour,day,week,month,year,range"
 
 ; New parameter for 2.12.7 version.
  multi_server_environment=0

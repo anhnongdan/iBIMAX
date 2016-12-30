@@ -184,6 +184,7 @@ class ArchiveSelector
             /** @var Period $period */
             $table = ArchiveTableCreator::getNumericTable($period->getDateStart());
             $monthToPeriods[$table][] = $period;
+            \Piwik\Log::debug("ArchiveSelector:%s get table %s with period: %s", __FUNCTION__, $table, $period->toString());
         }
 
         // for every month within the archive query, select from numeric table
@@ -195,7 +196,7 @@ class ArchiveSelector
 
             if ($firstPeriod instanceof Range) {
                 $dateCondition = "period = ? AND date1 = ? AND date2 = ?";
-                $bind[] = $firstPeriod->getId();
+                $bind[] = $firstPeriod->getId();                
                 $bind[] = $firstPeriod->getDateStart()->toString('Y-m-d');
                 $bind[] = $firstPeriod->getDateEnd()->toString('Y-m-d');
             } else {
@@ -209,15 +210,25 @@ class ArchiveSelector
 
                     $dateCondition .= "(period = ? AND date1 = ? AND date2 = ?)";
                     $bind[] = $period->getId();
-                    $bind[] = $period->getDateStart()->toString('Y-m-d');
-                    $bind[] = $period->getDateEnd()->toString('Y-m-d');
+                    
+                    //if ($period->getId() === Period\Hour::PERIOD_ID)
+                    
+                    /**
+                     * [Thangnt 2016-12-30]
+                     * After refactor the toString function of Date, code is much cleaner
+                     */
+                    $bind[] = $period->getDateStart()->toString();
+                    $bind[] = $period->getDateEnd()->toString();
+                    
+                    //$bind[] = $period->getDateStart()->toString('Y-m-d');
+                    //$bind[] = $period->getDateEnd()->toString('Y-m-d');
+                    \Piwik\Log::debug("ArchiveSelector: get period conditions: id: %s, %s - %s", $period->getId(), $period->getDateStart()->toString(), $period->getDateEnd()->toString());
                 }
 
                 $dateCondition .= ')';
             }
 
             $sql = sprintf($getArchiveIdsSql, $table, $dateCondition);
-
             $archiveIds = Db::fetchAll($sql, $bind);
 
             // get the archive IDs
