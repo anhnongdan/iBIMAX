@@ -1,6 +1,8 @@
 /core_2.16.5/
 /bimax_anallytics/%**
 /piwik/
+/nguyenkim
+/mediatest
 
 php_errors.log
 *.tmp
